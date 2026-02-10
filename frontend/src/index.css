@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/* ========== RONEL THEME ========== */
+:root {
+  --ronel-primary: #0a0a0a;
+  --ronel-primary-hover: #171717;
+  --ronel-surface: #fafafa;
+  --ronel-surface-elevated: #ffffff;
+  --ronel-muted: #737373;
+  --ronel-border: #e5e5e5;
+  --ronel-radius: 1rem;
+  --ronel-radius-lg: 1.5rem;
+  --ronel-font-serif: "Georgia", "Cambria", "Times New Roman", serif;
+  --ronel-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  --ronel-shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+@layer base {
+  body {
+    @apply antialiased text-gray-900 bg-white;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Theme utility classes */
+.btn-primary {
+  @apply px-6 py-3.5 bg-[var(--ronel-primary)] text-white font-semibold tracking-wide rounded-xl;
+  @apply hover:bg-[var(--ronel-primary-hover)] transition shadow-lg hover:shadow-xl;
+}
+
+.input-ronel {
+  @apply w-full px-4 py-3 rounded-xl border border-[var(--ronel-border)] bg-white;
+  @apply focus:border-[var(--ronel-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--ronel-primary)] transition;
+}
+
+.card-ronel {
+  @apply bg-[var(--ronel-surface-elevated)] rounded-2xl border border-[var(--ronel-border)] shadow-[var(--ronel-shadow)];
+}
