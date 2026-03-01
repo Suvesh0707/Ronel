@@ -29,11 +29,11 @@ const sendTokenResponse = (res, user, statusCode = 200) => {
   const token = generateToken(user);
 
   res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 10 * 24 * 60 * 60 * 1000,
-  });
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  maxAge: 10 * 24 * 60 * 60 * 1000,
+});
 
   res.status(statusCode).json({
     success: true,
