@@ -17,9 +17,9 @@ import axios from '../api/axios';
  */
 
 const stats = [
-  { value: '50K+', label: 'Happy Customers', icon: Award },
-  { value: '100+', label: 'Unique Fragrances', icon: Sparkles },
-  { value: '25+', label: 'Countries Worldwide', icon: TrendingUp },
+  { value: '1k+', label: 'Happy Customers', icon: Award },
+  { value: '20+', label: 'Unique Fragrances', icon: Sparkles },
+  { value: '28 states', label: 'Pan India', icon: TrendingUp },
 ];
 
 const testimonials = [
@@ -95,7 +95,7 @@ export default function Home() {
           {/* Badge */}
           <div className="inline-flex items-center space-x-2 bg-black/5 backdrop-blur-sm px-6 py-3 rounded-full mb-8 border border-black/10 animate-fadeInUp">
             <Sparkles className="w-4 h-4 text-gray-700" />
-            <span className="text-sm font-medium tracking-wider text-gray-700">LUXURY COLLECTION 2024</span>
+            <span className="text-sm font-medium tracking-wider text-gray-700">LUXURY COLLECTION 2026</span>
           </div>
           
           {/* Main heading */}
