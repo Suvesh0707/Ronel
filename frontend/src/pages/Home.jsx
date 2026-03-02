@@ -83,7 +83,7 @@ export default function Home() {
         </div>
         
         {/* Background pattern */}
-        <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 opacity-50">
           <div className="absolute inset-0" style={{
             backgroundImage: 'url("https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600")',
             backgroundSize: 'cover',
