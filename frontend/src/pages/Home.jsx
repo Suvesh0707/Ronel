@@ -83,7 +83,7 @@ export default function Home() {
         </div>
         
         {/* Background pattern */}
-        <div className="absolute inset-0 opacity-70">
+        <div className="absolute inset-0 opacity-40">
           <div className="absolute inset-0" style={{
             backgroundImage: 'url("https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600")',
             backgroundSize: 'cover',
@@ -105,7 +105,7 @@ export default function Home() {
           </h1>
           
           {/* Subtitle */}
-          <p className="text-xl font-bold md:text-2xl lg:text-3xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed animate-fadeInUp">
+          <p className="text-xl  md:text-2xl lg:text-3xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed font-light animate-fadeInUp">
             Experience fragrances that capture the essence of sophistication and leave a lasting impression
           </p>
           
