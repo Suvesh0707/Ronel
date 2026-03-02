@@ -75,14 +75,8 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start space-x-3">
                 <Mail className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                <a href="mailto:support@ronel.in" className="text-gray-400 hover:text-white text-sm transition-colors">
-                  support@ronel.in
-                </a>
-              </li>
-              <li className="flex items-start space-x-3">
-                <Phone className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                <a href="tel:+919876543210" className="text-gray-400 hover:text-white text-sm transition-colors">
-                  +91 98765 43210
+                <a href="mailto:ronelperfumes11@gmail.com" className="text-gray-400 hover:text-white text-sm transition-colors">
+                  ronelperfumes11@gmail.com
                 </a>
               </li>
               <li className="flex items-start space-x-3">
