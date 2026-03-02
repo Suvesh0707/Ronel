@@ -75,12 +75,17 @@ export default function Header() {
         >
           {/* LOGO — prominent like Navora */}
           <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-            <div className="w-10 h-10 rounded-full bg-black text-white flex items-center justify-center font-bold text-lg shadow-md">
-              R
-            </div>
-            <span className="text-xl font-serif font-semibold tracking-wider text-black">
-              Ronel
-            </span>
+            <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center shadow-md overflow-hidden">
+  <img 
+    src="/1.png" 
+    alt="Ronel Logo" 
+    className="w-full h-full object-cover"
+  />
+</div>
+
+<span className="text-xl font-serif font-semibold tracking-wider text-black">
+  Ronel
+</span>
           </Link>
 
           {/* DESKTOP NAV */}
