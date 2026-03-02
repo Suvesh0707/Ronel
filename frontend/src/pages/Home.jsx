@@ -105,7 +105,7 @@ export default function Home() {
           </h1>
           
           {/* Subtitle */}
-          <p className="text-xl  md:text-2xl lg:text-3xl text-gray-600 max-w-3xl mx-auto mb-12 leading-relaxed font-light animate-fadeInUp">
+          <p className="text-xl  md:text-2xl lg:text-3xl text-black max-w-3xl mx-auto mb-12 leading-relaxed font-light animate-fadeInUp">
             Experience fragrances that capture the essence of sophistication and leave a lasting impression
           </p>
           
