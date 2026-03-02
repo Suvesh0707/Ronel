@@ -108,8 +108,16 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <p className="text-gray-400 text-sm">
-                © 2024 Ronel. All rights reserved.
-              </p>
+  © 2026 Ronel. All rights reserved. | Developed by 
+  <a 
+    href="https://github.com/suvesh0707" 
+    target="_blank" 
+    rel="noopener noreferrer"
+    className="text-white font-semibold ml-1 hover:underline"
+  >
+    Suvesh Pagam
+  </a>
+</p>
               {apiOk === true && (
                 <span className="flex items-center gap-1.5 text-xs text-green-400">
                   <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
