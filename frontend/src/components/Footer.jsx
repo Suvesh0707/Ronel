@@ -115,7 +115,7 @@ export default function Footer() {
     rel="noopener noreferrer"
     className="text-white font-semibold ml-1 hover:underline"
   >
-    Suvesh Pagam
+    Tanvi Velhal
   </a>
 </p>
               {apiOk === true && (
