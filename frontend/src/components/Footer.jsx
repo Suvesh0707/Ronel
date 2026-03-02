@@ -22,14 +22,8 @@ export default function Footer() {
               Premium fragrances crafted for India. Curated scents delivered across the country.
             </p>
             <div className="flex items-center space-x-4">
-              <a href="#" className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition">
+              <a href="https://www.instagram.com/ronel.perfumes" className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition">
                 <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="p-2.5 bg-white/10 hover:bg-white/20 rounded-full transition">
-                <Twitter className="w-5 h-5" />
               </a>
             </div>
           </div>
