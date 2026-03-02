@@ -15,7 +15,10 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           <div className="space-y-6">
-            <div className="flex items-center space-x-3">
+            <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
+   <img src="/4.jpeg" alt="Ronel Logo" className="h-20 w-auto" />
+          </Link>
+
               <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
                 <span className="text-[var(--ronel-primary)] font-serif text-2xl font-bold">R</span>
               </div>
