@@ -75,7 +75,7 @@ export default function Header() {
         >
           {/* LOGO — prominent like Navora */}
           <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-   <img src="/4.jpeg" alt="Ronel Logo" className="h-24 w-auto" />
+   <img src="/4.jpeg" alt="Ronel Logo" className="h-20 w-auto" />
           </Link>
 
           {/* DESKTOP NAV */}
