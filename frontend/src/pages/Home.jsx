@@ -318,49 +318,6 @@ export default function Home() {
         </div>
       </section>
       
-      {/* Features Grid */}
-      <section className="py-32 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              {
-                icon: Sparkles,
-                title: 'Premium Quality',
-                description: 'Crafted with the world\'s finest ingredients, sourced from renowned fragrance houses and botanical gardens.',
-                gradient: 'from-amber-500 to-orange-500'
-              },
-              {
-                icon: ShieldCheck,
-                title: 'Authenticity Guaranteed',
-                description: '100% authentic fragrances with certificates of authenticity. Every bottle is verified and sealed.',
-                gradient: 'from-blue-500 to-cyan-500'
-              },
-              {
-                icon: Truck,
-                title: 'Complimentary Shipping',
-                description: 'Free express shipping worldwide on all orders. Beautifully packaged and delivered to your door.',
-                gradient: 'from-purple-500 to-pink-500'
-              }
-            ].map((feature, index) => (
-              <div 
-                key={index} 
-                className="group relative p-10 bg-gradient-to-br from-gray-50 to-white rounded-3xl border border-gray-200 hover:border-gray-300 transition-all duration-500 hover:shadow-2xl transform hover:-translate-y-2"
-              >
-                <div className={`inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br ${feature.gradient} rounded-2xl mb-8 shadow-lg group-hover:scale-110 transform transition-all duration-500`}>
-                  <feature.icon className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="text-2xl font-serif font-semibold mb-4 text-black group-hover:text-gray-900 transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {feature.description}
-                </p>
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
       
       {/* Newsletter CTA */}
       <section className="py-24 bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
