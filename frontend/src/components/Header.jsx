@@ -68,14 +68,10 @@ export default function Header() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4">
-        <div
-          className={`flex items-center justify-between ${
-            scrolled ? "h-16" : "h-20"
-          }`}
-        >
+       <div className="flex items-center justify-between h-20">
           {/* LOGO — prominent like Navora */}
           <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-   <img src="/4.jpeg" alt="Ronel Logo" className="h-20 w-auto" />
+   <img src="/4.jpeg" alt="Ronel Logo" className="h-16 w-auto" />
           </Link>
 
           {/* DESKTOP NAV */}
