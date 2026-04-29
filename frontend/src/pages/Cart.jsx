@@ -65,7 +65,12 @@ export default function Cart() {
       return;
     }
     if (!selectedAddressId) {
-      showToast("Please select a delivery address");
+      if (addresses.length === 0) {
+        showToast("Please add address first");
+        navigate("/profile");
+      } else {
+        showToast("Please select a delivery address");
+      }
       return;
     }
 
@@ -137,7 +142,12 @@ export default function Cart() {
       return;
     }
     if (!selectedAddressId) {
-      showToast("Please select a delivery address");
+      if (addresses.length === 0) {
+        showToast("Please add address first");
+        navigate("/profile");
+      } else {
+        showToast("Please select a delivery address");
+      }
       return;
     }
     setCodLoading(true);
@@ -297,13 +307,7 @@ export default function Cart() {
               </div>
               <button
                 onClick={handleCheckout}
-                disabled={
-                  paymentLoading ||
-                  codLoading ||
-                  items.length === 0 ||
-                  addresses.length === 0 ||
-                  !selectedAddressId
-                }
+                disabled={paymentLoading || codLoading || items.length === 0}
                 className="w-full py-4 btn-primary disabled:opacity-50 disabled:cursor-not-allowed mb-3"
               >
                 {paymentLoading ? "Processing…" : "Place Order (Pay Online)"}
@@ -311,13 +315,7 @@ export default function Cart() {
               {codEnabled && (
                 <button
                   onClick={handlePlaceCod}
-                  disabled={
-                    paymentLoading ||
-                    codLoading ||
-                    items.length === 0 ||
-                    addresses.length === 0 ||
-                    !selectedAddressId
-                  }
+                  disabled={paymentLoading || codLoading || items.length === 0}
                   className="w-full py-4 border-2 border-[var(--ronel-primary)] text-[var(--ronel-primary)] font-semibold rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {codLoading ? "Placing…" : "Cash on Delivery (COD)"}

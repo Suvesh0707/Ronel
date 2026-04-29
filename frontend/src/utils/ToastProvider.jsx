@@ -56,6 +56,7 @@ export function ToastProvider({ children }) {
         <Toast.Root
           open={open}
           onOpenChange={setOpen}
+          duration={2500}
           className={`
             fixed top-6 right-6 z-[9999]
             w-[320px] md:w-[360px]
@@ -78,11 +79,20 @@ export function ToastProvider({ children }) {
           <div className="flex-shrink-0">{getIcon()}</div>
 
           {/* Message */}
-          <div className="flex-1">
+          <div className="flex-1 pr-3">
             <Toast.Title className="text-sm md:text-base font-semibold text-white">
               {message}
             </Toast.Title>
           </div>
+
+          <Toast.Close asChild>
+            <button
+              className="text-white/70 hover:text-white transition rounded-full p-1 focus:outline-none focus:ring-2 focus:ring-white"
+              aria-label="Dismiss"
+            >
+              <AiOutlineCloseCircle className="w-5 h-5" />
+            </button>
+          </Toast.Close>
 
           {/* Progress bar */}
           <div
@@ -110,15 +120,15 @@ export function ToastProvider({ children }) {
           }
 
           .animate-toast-in {
-            animation: toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: toast-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
           }
 
           .animate-toast-out {
-            animation: toast-out 0.25s ease-in;
+            animation: toast-out 0.2s ease-in;
           }
 
           .animate-progress {
-            animation: progress 3.5s linear forwards;
+            animation: progress 1s linear forwards;
           }
         `}</style>
       </Toast.Provider>
