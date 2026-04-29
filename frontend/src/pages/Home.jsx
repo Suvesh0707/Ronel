@@ -22,6 +22,8 @@ const stats = [
   { value: '28 states', label: 'Pan India', icon: TrendingUp },
 ];
 
+const DEFAULT_HERO_IMAGE = "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600";
+
 const testimonials = [
   {
     name: 'Sarah Mitchell',
@@ -47,6 +49,12 @@ export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [heroSettings, setHeroSettings] = useState({
+    image: null,
+    heading: "Timeless Elegance",
+    subtitle: "Experience fragrances that capture the essence of sophistication and leave a lasting impression",
+    textColor: "#000000",
+  });
 
   useEffect(() => {
     async function fetchFeaturedProducts() {
@@ -63,6 +71,26 @@ export default function Home() {
     }
 
     fetchFeaturedProducts();
+  }, []);
+
+  useEffect(() => {
+    async function fetchHeroSettings() {
+      try {
+        const { data } = await axios.get("/settings/hero?section=home");
+        if (data?.settings) {
+          setHeroSettings({
+            image: data.settings.image || null,
+            heading: data.settings.heading || "Timeless Elegance",
+            subtitle: data.settings.subtitle || "Experience fragrances that capture the essence of sophistication and leave a lasting impression",
+            textColor: data.settings.textColor || "#000000",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to load hero settings:", error);
+      }
+    }
+
+    fetchHeroSettings();
   }, []);
 
   useEffect(() => {
@@ -85,7 +113,7 @@ export default function Home() {
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-40">
           <div className="absolute inset-0" style={{
-            backgroundImage: 'url("https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600")',
+            backgroundImage: `url("${heroSettings.image || DEFAULT_HERO_IMAGE}")`,
             backgroundSize: 'cover',
             backgroundPosition: 'center'
           }} />
@@ -99,14 +127,15 @@ export default function Home() {
           </div>
           
           {/* Main heading */}
-          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-serif tracking-tight text-black mb-8 animate-fadeInUp">
-            <span className="block mb-2">Timeless</span>
-            <span className="block gradient-text">Elegance</span>
+          <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-serif tracking-tight mb-8 animate-fadeInUp" style={{ color: heroSettings.textColor }}>
+            {heroSettings.heading.split("\n").map((line, index) => (
+              <span key={index} className="block mb-2">{line}</span>
+            ))}
           </h1>
           
           {/* Subtitle */}
-          <p className="text-xl  md:text-2xl lg:text-3xl text-black max-w-3xl mx-auto mb-12 leading-relaxed font-light animate-fadeInUp">
-            Experience fragrances that capture the essence of sophistication and leave a lasting impression
+          <p className="text-xl  md:text-2xl lg:text-3xl max-w-3xl mx-auto mb-12 leading-relaxed font-light animate-fadeInUp" style={{ color: heroSettings.textColor }}>
+            {heroSettings.subtitle}
           </p>
           
           {/* CTA Buttons */}

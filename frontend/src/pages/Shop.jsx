@@ -21,6 +21,12 @@ export default function Shop() {
   const [sortBy, setSortBy] = useState('featured');
   const [gridView, setGridView] = useState(4);
   const [showFilters, setShowFilters] = useState(false);
+  const [heroSettings, setHeroSettings] = useState({
+    image: null,
+    heading: 'Our Collection',
+    subtitle: 'Discover your signature scent from our curated selection',
+    textColor: '#ffffff',
+  });
   
   // Categories based on API fragrance types
   const categories = ['All', 'floral', 'aromatic', 'citrus', 'woody', 'aquatic', 'strong', 'light'];
@@ -41,7 +47,25 @@ export default function Shop() {
 
     fetchProducts();
   }, []);
+  useEffect(() => {
+    async function fetchHeroSettings() {
+      try {
+        const { data } = await axios.get('/settings/hero?section=shop');
+        if (data?.settings) {
+          setHeroSettings({
+            image: data.settings.image || null,
+            heading: data.settings.heading || 'Our Collection',
+            subtitle: data.settings.subtitle || 'Discover your signature scent from our curated selection',
+            textColor: data.settings.textColor || '#ffffff',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load shop hero settings:', error);
+      }
+    }
 
+    fetchHeroSettings();
+  }, []);
   const filteredProducts = !Array.isArray(products) ? [] : (selectedCategory === 'All' 
     ? products 
     : products.filter(p => (p.fragrance || p.fragranceType) === selectedCategory));
@@ -65,7 +89,10 @@ export default function Shop() {
       {/* Hero */}
       <section className="relative h-[500px] bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=1600')] bg-cover bg-center" />
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url('${heroSettings.image || 'https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=1600'}')` }}
+          />
         </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         
@@ -74,11 +101,11 @@ export default function Shop() {
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
         
         <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-serif mb-6 animate-fadeInUp">
-            Our Collection
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-serif mb-6 animate-fadeInUp" style={{ color: heroSettings.textColor }}>
+            {heroSettings.heading}
           </h1>
-          <p className="text-xl md:text-2xl text-gray-200 max-w-2xl mx-auto animate-fadeInUp opacity-0" style={{ animationDelay: '0.2s' }}>
-            Discover your signature scent from our curated selection
+          <p className="text-xl md:text-2xl max-w-2xl mx-auto animate-fadeInUp opacity-0" style={{ animationDelay: '0.2s', color: heroSettings.textColor }}>
+            {heroSettings.subtitle}
           </p>
           <div className="mt-8 animate-fadeInUp opacity-0" style={{ animationDelay: '0.4s' }}>
             <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full border border-white/20">

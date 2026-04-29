@@ -45,6 +45,30 @@ export default function AdminDashboard() {
   const [codEnabled, setCodEnabled] = useState(false);
   const [codSettingLoading, setCodSettingLoading] = useState(false);
 
+  const DEFAULT_HERO_IMAGES = {
+    home: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+    shop: "https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=1600",
+    contact: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600",
+    about: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600",
+  };
+  const heroSections = [
+    { value: 'home', label: 'Homepage' },
+    { value: 'shop', label: 'Shop' },
+    { value: 'contact', label: 'Contact' },
+    { value: 'about', label: 'About' },
+  ];
+  const [heroSection, setHeroSection] = useState('home');
+  const [heroCurrentImage, setHeroCurrentImage] = useState(null);
+  const [heroHeading, setHeroHeading] = useState("Timeless Elegance");
+  const [heroSubtitle, setHeroSubtitle] = useState(
+    "Experience fragrances that capture the essence of sophistication and leave a lasting impression"
+  );
+  const [heroTextColor, setHeroTextColor] = useState("#000000");
+  const [heroSelectedFile, setHeroSelectedFile] = useState(null);
+  const [heroPreview, setHeroPreview] = useState(null);
+  const [heroDeleteImage, setHeroDeleteImage] = useState(false);
+  const [heroLoading, setHeroLoading] = useState(false);
+
   // Delivery boys (admin)
   const [deliveryBoys, setDeliveryBoys] = useState([]);
   const [deliveryBoyForm, setDeliveryBoyForm] = useState({ name: "", phone: "", city: "", password: "", isActive: true });
@@ -103,6 +127,24 @@ export default function AdminDashboard() {
     }
   }, [showToast]);
 
+  const fetchHeroSettings = useCallback(async () => {
+    try {
+      const res = await axios.get(`/settings/admin/hero?section=${heroSection}`);
+      const settings = res.data?.settings || {};
+      setHeroCurrentImage(settings.image || null);
+      setHeroHeading(settings.heading || "Timeless Elegance");
+      setHeroSubtitle(
+        settings.subtitle || "Experience fragrances that capture the essence of sophistication and leave a lasting impression"
+      );
+      setHeroTextColor(settings.textColor || "#000000");
+      setHeroSelectedFile(null);
+      setHeroPreview(null);
+      setHeroDeleteImage(false);
+    } catch {
+      showToast("Failed to fetch hero settings");
+    }
+  }, [showToast, heroSection]);
+
   const handleToggleCod = async () => {
     setCodSettingLoading(true);
     try {
@@ -116,6 +158,71 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleHeroImageSelection = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (heroPreview) {
+      URL.revokeObjectURL(heroPreview);
+    }
+    setHeroSelectedFile(file);
+    setHeroPreview(URL.createObjectURL(file));
+    setHeroDeleteImage(false);
+  };
+
+  const handleCancelHeroImage = () => {
+    if (heroPreview) {
+      URL.revokeObjectURL(heroPreview);
+    }
+    setHeroSelectedFile(null);
+    setHeroPreview(null);
+  };
+
+  const handleRemoveHeroImage = () => {
+    if (heroPreview) {
+      URL.revokeObjectURL(heroPreview);
+    }
+    setHeroSelectedFile(null);
+    setHeroPreview(null);
+    setHeroDeleteImage(true);
+  };
+
+  const handleSaveHeroSettings = async (e) => {
+    e.preventDefault();
+    setHeroLoading(true);
+    try {
+      const form = new FormData();
+      form.append("heroHeading", heroHeading);
+      form.append("heroSubtitle", heroSubtitle);
+      form.append("heroTextColor", heroTextColor);
+      if (heroSelectedFile) {
+        form.append("heroImage", heroSelectedFile);
+      }
+      if (heroDeleteImage) {
+        form.append("deleteImage", "true");
+      }
+
+      const res = await axios.patch(`/settings/admin/hero?section=${heroSection}`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const saved = res.data?.settings || {};
+      setHeroCurrentImage(saved.image || null);
+      setHeroHeading(saved.heading || "Timeless Elegance");
+      setHeroSubtitle(
+        saved.subtitle || "Experience fragrances that capture the essence of sophistication and leave a lasting impression"
+      );
+      setHeroTextColor(saved.textColor || "#000000");
+      setHeroSelectedFile(null);
+      setHeroPreview(null);
+      setHeroDeleteImage(false);
+      showToast(res.data?.message || "Hero section updated");
+    } catch (err) {
+      showToast(err.response?.data?.message || "Failed to update hero settings");
+    } finally {
+      setHeroLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === "orders") {
       fetchOrdersForAdmin();
@@ -123,8 +230,11 @@ export default function AdminDashboard() {
     }
     if (activeTab === "replacements") fetchReplacementRequests();
     if (activeTab === "delivery-boys") fetchDeliveryBoys();
-    if (activeTab === "settings") fetchCodSetting();
-  }, [activeTab, fetchOrdersForAdmin, fetchReplacementRequests, fetchDeliveryBoys, fetchCodSetting]);
+    if (activeTab === "settings") {
+      fetchCodSetting();
+      fetchHeroSettings();
+    }
+  }, [activeTab, fetchOrdersForAdmin, fetchReplacementRequests, fetchDeliveryBoys, fetchCodSetting, fetchHeroSettings]);
 
   const handleAssignDelivery = async () => {
     if (!selectedOrderIds.length || !selectedDeliveryBoyId) {
@@ -631,27 +741,170 @@ export default function AdminDashboard() {
         )}
 
         {activeTab === "settings" && (
-          <div className="space-y-6 max-w-xl">
-            <h3 className="text-lg font-semibold text-gray-900">Payment Settings</h3>
-            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl bg-white">
-              <div>
-                <p className="font-medium text-gray-900">Cash on Delivery (COD)</p>
-                <p className="text-sm text-gray-600 mt-0.5">
-                  When enabled, customers can pay when their order is delivered. When disabled, only online payment is available.
-                </p>
+          <div className="space-y-10 max-w-5xl">
+            <div className="space-y-6 max-w-xl">
+              <h3 className="text-lg font-semibold text-gray-900">Payment Settings</h3>
+              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-xl bg-white">
+                <div>
+                  <p className="font-medium text-gray-900">Cash on Delivery (COD)</p>
+                  <p className="text-sm text-gray-600 mt-0.5">
+                    When enabled, customers can pay when their order is delivered. When disabled, only online payment is available.
+                  </p>
+                </div>
+                <button
+                  onClick={handleToggleCod}
+                  disabled={codSettingLoading}
+                  className={`px-4 py-2 rounded-lg font-medium text-sm transition disabled:opacity-50 ${
+                    codEnabled
+                      ? "bg-green-600 text-white hover:bg-green-700"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                >
+                  {codSettingLoading ? "Updating…" : codEnabled ? "Enabled" : "Disabled"}
+                </button>
               </div>
-              <button
-                onClick={handleToggleCod}
-                disabled={codSettingLoading}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition disabled:opacity-50 ${
-                  codEnabled
-                    ? "bg-green-600 text-white hover:bg-green-700"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-              >
-                {codSettingLoading ? "Updating…" : codEnabled ? "Enabled" : "Disabled"}
-              </button>
             </div>
+
+            <form onSubmit={handleSaveHeroSettings} className="space-y-6">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900">Hero section</h3>
+                    <p className="text-sm text-gray-600 max-w-2xl">
+                      Update the {heroSections.find((section) => section.value === heroSection)?.label || 'homepage'} hero background and text settings. The admin panel shows the current image and the selected replacement image side by side.
+                    </p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Select section</label>
+                    <select
+                      value={heroSection}
+                      onChange={(e) => setHeroSection(e.target.value)}
+                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-black"
+                    >
+                      {heroSections.map((section) => (
+                        <option key={section.value} value={section.value}>{section.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  disabled={heroLoading}
+                  className="inline-flex items-center justify-center rounded-xl bg-black px-5 py-3 text-sm font-medium text-white transition disabled:opacity-50"
+                >
+                  {heroLoading ? "Saving…" : "Save hero settings"}
+                </button>
+              </div>
+
+              <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+                <div className="space-y-4">
+                  <div className="rounded-3xl border border-gray-200 bg-white p-5">
+                    <p className="text-sm font-semibold text-gray-900 mb-3">Current hero image</p>
+                    <img
+                      src={heroCurrentImage || DEFAULT_HERO_IMAGES[heroSection] || DEFAULT_HERO_IMAGES.home}
+                      alt="Current hero"
+                      className="h-56 w-full rounded-2xl object-cover border border-gray-200"
+                    />
+                  </div>
+
+                  <div className="rounded-3xl border border-gray-200 bg-white p-5">
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">Replacement image</p>
+                        <p className="text-sm text-gray-500">Choose a new hero image or remove the current custom image.</p>
+                      </div>
+                      <label className="inline-flex cursor-pointer items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100">
+                        Select photo
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleHeroImageSelection}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                    {heroPreview ? (
+                      <img
+                        src={heroPreview}
+                        alt="New hero preview"
+                        className="h-56 w-full rounded-2xl object-cover border border-gray-200"
+                      />
+                    ) : (
+                      <div className="flex h-56 items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-gray-50 text-gray-500">
+                        No new image selected
+                      </div>
+                    )}
+                    <div className="mt-4 flex flex-wrap gap-3">
+                      {heroPreview && (
+                        <button
+                          type="button"
+                          onClick={handleCancelHeroImage}
+                          className="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        >
+                          Cancel selection
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={handleRemoveHeroImage}
+                        disabled={!heroCurrentImage}
+                        className="rounded-xl border border-red-300 bg-red-50 px-4 py-2 text-sm text-red-700 hover:bg-red-100 disabled:opacity-50"
+                      >
+                        Remove custom image
+                      </button>
+                    </div>
+                    {heroDeleteImage && (
+                      <p className="mt-3 text-sm text-red-600">The custom hero image will be removed and the default image will be shown.</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="rounded-3xl border border-gray-200 bg-white p-5 space-y-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Hero heading</label>
+                      <input
+                        type="text"
+                        value={heroHeading}
+                        onChange={(e) => setHeroHeading(e.target.value)}
+                        className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:border-black"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Hero subtitle</label>
+                      <textarea
+                        value={heroSubtitle}
+                        onChange={(e) => setHeroSubtitle(e.target.value)}
+                        rows={4}
+                        className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:border-black resize-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Text color</label>
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="color"
+                          value={heroTextColor}
+                          onChange={(e) => setHeroTextColor(e.target.value)}
+                          className="h-12 w-16 rounded-xl border border-gray-200 p-0"
+                        />
+                        <span className="text-sm text-gray-600">{heroTextColor}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-gray-200 bg-gray-50 p-5">
+                    <p className="text-sm font-semibold text-gray-900 mb-3">Text preview</p>
+                    <div className="rounded-2xl bg-white p-5" style={{ color: heroTextColor }}>
+                      <p className="text-2xl font-serif font-bold">{heroHeading || "Timeless Elegance"}</p>
+                      <p className="mt-3 text-sm text-gray-600" style={{ color: heroTextColor }}>
+                        {heroSubtitle || "Experience fragrances that capture the essence of sophistication and leave a lasting impression"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
           </div>
         )}
 

@@ -1,4 +1,6 @@
+﻿import { useEffect, useState } from 'react';
 import { Award, Heart, Sparkles, Users, Globe, Leaf } from 'lucide-react';
+import axios from '../api/axios';
 
 const values = [
   {
@@ -49,38 +51,66 @@ const team = [
   }
 ];
 
+const DEFAULT_ABOUT_HERO = {
+  image: 'https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600',
+  heading: 'Crafting Timeless Elegance',
+  subtitle: 'Every bottle tells a story of sophistication, passion, and the art of perfumery.',
+  textColor: '#ffffff',
+};
+
 export default function About() {
+  const [heroSettings, setHeroSettings] = useState(DEFAULT_ABOUT_HERO);
+
+  useEffect(() => {
+    async function fetchHeroSettings() {
+      try {
+        const { data } = await axios.get('/settings/hero?section=about');
+        if (data?.settings) {
+          setHeroSettings({
+            image: data.settings.image || DEFAULT_ABOUT_HERO.image,
+            heading: data.settings.heading || DEFAULT_ABOUT_HERO.heading,
+            subtitle: data.settings.subtitle || DEFAULT_ABOUT_HERO.subtitle,
+            textColor: data.settings.textColor || DEFAULT_ABOUT_HERO.textColor,
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load about hero settings:', error);
+      }
+    }
+
+    fetchHeroSettings();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white pt-24">
       {/* Hero */}
       <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black">
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600')] bg-cover bg-center" />
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('${heroSettings.image}')` }} />
         </div>
-        
+
         {/* Animated elements */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-float" />
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-        
-        <div className="relative z-10 text-center text-white px-4 max-w-5xl mx-auto">
+
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
           <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-6 py-3 rounded-full mb-8 border border-white/20 animate-fadeInUp">
             <Sparkles className="w-4 h-4" />
             <span className="text-sm font-medium tracking-wider">EST. 2024</span>
           </div>
-          
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-serif mb-8 leading-tight animate-fadeInUp">
-            Crafting Timeless
-            <br />
-            <span className="italic">Elegance</span>
+
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-serif mb-8 leading-tight animate-fadeInUp" style={{ color: heroSettings.textColor }}>
+            {heroSettings.heading.split("\n").map((line, index) => (
+              <span key={index} className="block mb-2">{line}</span>
+            ))}
           </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto leading-relaxed font-light animate-fadeInUp">
-            Every bottle tells a story of sophistication, passion, and the art of perfumery. 
-            We create more than fragrances—we create lasting impressions.
+
+          <p className="text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed font-light animate-fadeInUp" style={{ color: heroSettings.textColor }}>
+            {heroSettings.subtitle}
           </p>
         </div>
       </section>
-      
+
       {/* Story */}
       <section className="py-32 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -90,13 +120,13 @@ export default function About() {
                 <Globe className="w-4 h-4 text-black" />
                 <span className="text-sm font-medium tracking-wider text-black">OUR STORY</span>
               </div>
-              
+
               <h2 className="text-5xl md:text-6xl font-serif text-black mb-8 leading-tight">
                 A Journey of
                 <br />
                 <span className="gradient-text">Passion</span>
               </h2>
-              
+
               <div className="space-y-6 text-lg text-gray-600 leading-relaxed">
                 <p>
                   Ronel was founded in India with a simple vision: to bring premium fragrances to every corner of the country. 
@@ -112,7 +142,7 @@ export default function About() {
                 </p>
               </div>
             </div>
-            
+
             <div className="relative">
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-6">
@@ -144,13 +174,13 @@ export default function About() {
           </div>
         </div>
       </section>
-      
+
       {/* Stats */}
       <section className="py-24 bg-black text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600')] bg-cover bg-center" />
         </div>
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {[
@@ -170,7 +200,7 @@ export default function About() {
           </div>
         </div>
       </section>
-      
+
       {/* Values */}
       <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -179,7 +209,7 @@ export default function About() {
               <Award className="w-4 h-4 text-black" />
               <span className="text-sm font-medium tracking-wider text-black">OUR VALUES</span>
             </div>
-            
+
             <h2 className="text-5xl md:text-6xl font-serif text-black mb-6">
               What Drives Us
             </h2>
@@ -187,7 +217,7 @@ export default function About() {
               The principles that guide everything we create
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {values.map((value, index) => (
               <div 
@@ -209,7 +239,7 @@ export default function About() {
           </div>
         </div>
       </section>
-      
+
       {/* Timeline */}
       <section className="py-32 bg-gradient-to-br from-gray-50 to-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -221,20 +251,15 @@ export default function About() {
               Milestones that shaped our story
             </p>
           </div>
-          
+
           <div className="relative">
-            {/* Timeline line */}
             <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-black via-gray-400 to-black transform md:-translate-x-1/2" />
-            
+
             <div className="space-y-16">
               {timeline.map((item, index) => (
                 <div 
                   key={index}
-                  className={`relative flex items-center ${
-                    index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
-                  } flex-col`}
-                >
-                  {/* Timeline dot */}
+                  className={`relative flex items-center ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} flex-col`}>
                   <div className="absolute left-0 md:left-1/2 w-6 h-6 bg-black rounded-full border-4 border-white shadow-lg transform md:-translate-x-1/2 z-10" />
                   
                   <div className={`w-full md:w-5/12 ${index % 2 === 0 ? 'md:pr-16' : 'md:pl-16'} pl-12 md:pl-0`}>
@@ -250,7 +275,7 @@ export default function About() {
           </div>
         </div>
       </section>
-      
+
       {/* Team */}
       <section className="py-32 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -262,7 +287,7 @@ export default function About() {
               The talented individuals behind every fragrance
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {team.map((member, index) => (
               <div key={index} className="group text-center">
@@ -282,13 +307,13 @@ export default function About() {
           </div>
         </div>
       </section>
-      
+
       {/* CTA */}
       <section className="py-32 bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600')] bg-cover bg-center" />
         </div>
-        
+
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
           <h2 className="text-5xl md:text-6xl font-serif mb-8 leading-tight">
             Experience the Art

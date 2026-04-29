@@ -21,6 +21,32 @@ export default function Contact() {
   }, [user]);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [heroSettings, setHeroSettings] = useState({
+    image: null,
+    heading: 'Get in Touch',
+    subtitle: "We'd love to hear from you. Let's create something beautiful together.",
+    textColor: '#ffffff',
+  });
+
+  useEffect(() => {
+    async function fetchHeroSettings() {
+      try {
+        const { data } = await axios.get('/settings/hero?section=contact');
+        if (data?.settings) {
+          setHeroSettings({
+            image: data.settings.image || null,
+            heading: data.settings.heading || 'Get in Touch',
+            subtitle: data.settings.subtitle || "We'd love to hear from you. Let's create something beautiful together.",
+            textColor: data.settings.textColor || '#ffffff',
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load contact hero settings:', error);
+      }
+    }
+
+    fetchHeroSettings();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,7 +82,10 @@ export default function Contact() {
       {/* Hero */}
       <section className="relative h-[500px] bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 opacity-20">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600')] bg-cover bg-center" />
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url('${heroSettings.image || 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600'}')` }}
+          />
         </div>
         
         {/* Animated elements */}
@@ -69,11 +98,11 @@ export default function Contact() {
             <span className="text-sm font-medium tracking-wider">LET'S TALK</span>
           </div>
           
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-serif mb-6 animate-fadeInUp opacity-0" style={{ animationDelay: '0.2s' }}>
-            Get in Touch
+          <h1 className="text-6xl md:text-7xl lg:text-8xl font-serif mb-6 animate-fadeInUp opacity-0" style={{ animationDelay: '0.2s', color: heroSettings.textColor }}>
+            {heroSettings.heading}
           </h1>
-          <p className="text-xl md:text-2xl text-gray-200 max-w-2xl mx-auto animate-fadeInUp opacity-0" style={{ animationDelay: '0.4s' }}>
-            We'd love to hear from you. Let's create something beautiful together.
+          <p className="text-xl md:text-2xl max-w-2xl mx-auto animate-fadeInUp opacity-0" style={{ animationDelay: '0.4s', color: heroSettings.textColor }}>
+            {heroSettings.subtitle}
           </p>
         </div>
       </section>
