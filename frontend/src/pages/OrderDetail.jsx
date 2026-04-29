@@ -284,7 +284,6 @@ export default function OrderDetail() {
                         ) : (
                           <OrderItemReviewForm
                             perfumeId={pid}
-                            perfumeName={it.perfume?.name}
                             submitting={submittingPerfumeId === pid}
                             onSubmit={handleSubmitReview}
                           />
@@ -320,7 +319,7 @@ export default function OrderDetail() {
   );
 }
 
-function OrderItemReviewForm({ perfumeId, perfumeName, submitting, onSubmit }) {
+function OrderItemReviewForm({ perfumeId, submitting, onSubmit }) {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");

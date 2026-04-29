@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../utils/ToastProvider';
 
@@ -13,7 +13,6 @@ export default function ProductCard({
   price,
   imageUrl,
   images = [],
-  category,
   inspiredBy = '',
   averageRating = 0,
   totalReviews = 0,
@@ -22,10 +21,32 @@ export default function ProductCard({
   baseNote = '',
 }) {
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isImageHovered, setIsImageHovered] = useState(false);
   const { addToCart } = useCart();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const mainImg = (Array.isArray(images) && images.length > 0 ? images[0] : imageUrl) || FALLBACK_IMG;
+
+  const imageList = useMemo(() => {
+    const fromImages = Array.isArray(images) ? images.filter(Boolean) : [];
+    if (fromImages.length > 0) return fromImages;
+    if (imageUrl) return [imageUrl];
+    return [FALLBACK_IMG];
+  }, [images, imageUrl]);
+
+  useEffect(() => {
+    if (imageList.length <= 1) return;
+    if (isImageHovered) return;
+
+    const interval = window.setInterval(() => {
+      setCurrentImageIndex((idx) => (idx + 1) % imageList.length);
+    }, 3000);
+
+    return () => window.clearInterval(interval);
+  }, [imageList.length, isImageHovered]);
+
+  const safeImageIndex = imageList.length > 0 ? currentImageIndex % imageList.length : 0;
+  const mainImg = imageList[safeImageIndex] || FALLBACK_IMG;
   const rating = Number(averageRating) || 0;
 
   const handleAddToCart = async (e) => {
@@ -54,7 +75,11 @@ export default function ProductCard({
     <div className="group relative flex flex-col h-full bg-white border border-neutral-200/80 hover:border-neutral-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300 overflow-hidden">
       {/* Image area - premium cream background */}
       <Link to={`/product/${slug}`} className="block flex-shrink-0">
-        <div className="relative aspect-[4/5] bg-[#f8f6f3] overflow-hidden">
+        <div
+          className="relative aspect-[4/5] bg-[#f8f6f3] overflow-hidden"
+          onMouseEnter={() => setIsImageHovered(true)}
+          onMouseLeave={() => setIsImageHovered(false)}
+        >
           <img
             src={mainImg}
             alt={name}
@@ -62,6 +87,37 @@ export default function ProductCard({
             loading="lazy"
             onError={(e) => { e.target.src = FALLBACK_IMG; }}
           />
+
+          {/* Multi-image carousel controls (looping) */}
+          {imageList.length > 1 && (
+            <>
+              <button
+                type="button"
+                aria-label="Previous image"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setCurrentImageIndex((idx) => (idx - 1 + imageList.length) % imageList.length);
+                }}
+                className="absolute top-1/2 left-2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-colors duration-200 flex items-center justify-center"
+              >
+                &lt;
+              </button>
+              <button
+                type="button"
+                aria-label="Next image"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setCurrentImageIndex((idx) => (idx + 1) % imageList.length);
+                }}
+                className="absolute top-1/2 right-2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow-sm hover:bg-white transition-colors duration-200 flex items-center justify-center"
+              >
+                &gt;
+              </button>
+            </>
+          )}
+
           {/* Discount badge - refined */}
           <div className="absolute top-3 left-3 px-2.5 py-1 bg-emerald-600/90 text-white text-[10px] font-semibold uppercase tracking-wider">
             -33%

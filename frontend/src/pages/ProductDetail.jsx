@@ -63,7 +63,9 @@ export default function ProductDetail() {
         setReviewPage(data.page ?? 1);
         setReviewTotalPages(data.totalPages ?? 1);
       }
-    } catch {}
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+    }
   }, [product?._id]);
 
   useEffect(() => {
