@@ -46,18 +46,33 @@ export default function AdminDashboard() {
   const [codSettingLoading, setCodSettingLoading] = useState(false);
 
   const DEFAULT_HERO_IMAGES = {
-    home: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
-    shop: "https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=1600",
-    contact: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600",
-    about: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600",
+    home: {
+      hero: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+      parallax: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=2000",
+      newsletter: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600",
+    },
+    shop: {
+      hero: "https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=1600",
+      newsletter: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+    },
+    contact: {
+      hero: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600",
+      map: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1600",
+    },
+    about: {
+      hero: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600",
+      stats: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+      cta: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+    },
   };
   const heroSections = [
-    { value: 'home', label: 'Homepage' },
-    { value: 'shop', label: 'Shop' },
-    { value: 'contact', label: 'Contact' },
-    { value: 'about', label: 'About' },
+    { value: 'home', label: 'Homepage', subsections: ['hero', 'parallax', 'newsletter'] },
+    { value: 'shop', label: 'Shop', subsections: ['hero', 'newsletter'] },
+    { value: 'contact', label: 'Contact', subsections: ['hero', 'map'] },
+    { value: 'about', label: 'About', subsections: ['hero', 'stats', 'cta'] },
   ];
   const [heroSection, setHeroSection] = useState('home');
+  const [heroSubSection, setHeroSubSection] = useState('hero');
   const [heroCurrentImage, setHeroCurrentImage] = useState(null);
   const [heroHeading, setHeroHeading] = useState("Timeless Elegance");
   const [heroSubtitle, setHeroSubtitle] = useState(
@@ -129,13 +144,11 @@ export default function AdminDashboard() {
 
   const fetchHeroSettings = useCallback(async () => {
     try {
-      const res = await axios.get(`/settings/admin/hero?section=${heroSection}`);
+      const res = await axios.get(`/settings/admin/hero?section=${heroSection}&subSection=${heroSubSection}`);
       const settings = res.data?.settings || {};
       setHeroCurrentImage(settings.image || null);
-      setHeroHeading(settings.heading || "Timeless Elegance");
-      setHeroSubtitle(
-        settings.subtitle || "Experience fragrances that capture the essence of sophistication and leave a lasting impression"
-      );
+      setHeroHeading(settings.heading || "");
+      setHeroSubtitle(settings.subtitle || "");
       setHeroTextColor(settings.textColor || "#000000");
       setHeroSelectedFile(null);
       setHeroPreview(null);
@@ -143,7 +156,7 @@ export default function AdminDashboard() {
     } catch {
       showToast("Failed to fetch hero settings");
     }
-  }, [showToast, heroSection]);
+  }, [showToast, heroSection, heroSubSection]);
 
   const handleToggleCod = async () => {
     setCodSettingLoading(true);
@@ -201,21 +214,19 @@ export default function AdminDashboard() {
         form.append("deleteImage", "true");
       }
 
-      const res = await axios.patch(`/settings/admin/hero?section=${heroSection}`, form, {
+      const res = await axios.patch(`/settings/admin/hero?section=${heroSection}&subSection=${heroSubSection}`, form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       const saved = res.data?.settings || {};
       setHeroCurrentImage(saved.image || null);
-      setHeroHeading(saved.heading || "Timeless Elegance");
-      setHeroSubtitle(
-        saved.subtitle || "Experience fragrances that capture the essence of sophistication and leave a lasting impression"
-      );
+      setHeroHeading(saved.heading || "");
+      setHeroSubtitle(saved.subtitle || "");
       setHeroTextColor(saved.textColor || "#000000");
       setHeroSelectedFile(null);
       setHeroPreview(null);
       setHeroDeleteImage(false);
-      showToast(res.data?.message || "Hero section updated");
+      showToast(res.data?.message || "Section updated");
     } catch (err) {
       showToast(err.response?.data?.message || "Failed to update hero settings");
     } finally {
@@ -235,6 +246,14 @@ export default function AdminDashboard() {
       fetchHeroSettings();
     }
   }, [activeTab, fetchOrdersForAdmin, fetchReplacementRequests, fetchDeliveryBoys, fetchCodSetting, fetchHeroSettings]);
+
+  useEffect(() => {
+    // Reset subsection when section changes
+    const section = heroSections.find(s => s.value === heroSection);
+    if (section && !section.subsections.includes(heroSubSection)) {
+      setHeroSubSection(section.subsections[0]);
+    }
+  }, [heroSection, heroSubSection]);
 
   const handleAssignDelivery = async () => {
     if (!selectedOrderIds.length || !selectedDeliveryBoyId) {
@@ -769,22 +788,36 @@ export default function AdminDashboard() {
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Hero section</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">Customizable Sections</h3>
                     <p className="text-sm text-gray-600 max-w-2xl">
-                      Update the {heroSections.find((section) => section.value === heroSection)?.label || 'homepage'} hero background and text settings. The admin panel shows the current image and the selected replacement image side by side.
+                      Update images and text for different sections of the {heroSections.find((section) => section.value === heroSection)?.label || 'homepage'}.
                     </p>
                   </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-900 mb-2">Select section</label>
-                    <select
-                      value={heroSection}
-                      onChange={(e) => setHeroSection(e.target.value)}
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-black"
-                    >
-                      {heroSections.map((section) => (
-                        <option key={section.value} value={section.value}>{section.label}</option>
-                      ))}
-                    </select>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Select Page</label>
+                      <select
+                        value={heroSection}
+                        onChange={(e) => setHeroSection(e.target.value)}
+                        className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-black"
+                      >
+                        {heroSections.map((section) => (
+                          <option key={section.value} value={section.value}>{section.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Select Section</label>
+                      <select
+                        value={heroSubSection}
+                        onChange={(e) => setHeroSubSection(e.target.value)}
+                        className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-black capitalize"
+                      >
+                        {heroSections.find(s => s.value === heroSection)?.subsections.map((sub) => (
+                          <option key={sub} value={sub}>{sub}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
                 <button
@@ -792,17 +825,17 @@ export default function AdminDashboard() {
                   disabled={heroLoading}
                   className="inline-flex items-center justify-center rounded-xl bg-black px-5 py-3 text-sm font-medium text-white transition disabled:opacity-50"
                 >
-                  {heroLoading ? "Saving…" : "Save hero settings"}
+                  {heroLoading ? "Saving…" : "Save settings"}
                 </button>
               </div>
 
               <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
                 <div className="space-y-4">
                   <div className="rounded-3xl border border-gray-200 bg-white p-5">
-                    <p className="text-sm font-semibold text-gray-900 mb-3">Current hero image</p>
+                    <p className="text-sm font-semibold text-gray-900 mb-3">Current image</p>
                     <img
-                      src={heroCurrentImage || DEFAULT_HERO_IMAGES[heroSection] || DEFAULT_HERO_IMAGES.home}
-                      alt="Current hero"
+                      src={heroCurrentImage || (DEFAULT_HERO_IMAGES[heroSection] && DEFAULT_HERO_IMAGES[heroSection][heroSubSection]) || DEFAULT_HERO_IMAGES.home.hero}
+                      alt="Current"
                       className="h-56 w-full rounded-2xl object-cover border border-gray-200"
                     />
                   </div>
@@ -811,7 +844,7 @@ export default function AdminDashboard() {
                     <div className="flex items-center justify-between gap-3 mb-4">
                       <div>
                         <p className="text-sm font-semibold text-gray-900">Replacement image</p>
-                        <p className="text-sm text-gray-500">Choose a new hero image or remove the current custom image.</p>
+                        <p className="text-sm text-gray-500">Choose a new image or remove the custom one.</p>
                       </div>
                       <label className="inline-flex cursor-pointer items-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100">
                         Select photo
@@ -826,7 +859,7 @@ export default function AdminDashboard() {
                     {heroPreview ? (
                       <img
                         src={heroPreview}
-                        alt="New hero preview"
+                        alt="New preview"
                         className="h-56 w-full rounded-2xl object-cover border border-gray-200"
                       />
                     ) : (
@@ -854,7 +887,7 @@ export default function AdminDashboard() {
                       </button>
                     </div>
                     {heroDeleteImage && (
-                      <p className="mt-3 text-sm text-red-600">The custom hero image will be removed and the default image will be shown.</p>
+                      <p className="mt-3 text-sm text-red-600">The custom image will be removed and the default will be shown.</p>
                     )}
                   </div>
                 </div>
@@ -862,7 +895,7 @@ export default function AdminDashboard() {
                 <div className="space-y-4">
                   <div className="rounded-3xl border border-gray-200 bg-white p-5 space-y-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Hero heading</label>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Heading</label>
                       <input
                         type="text"
                         value={heroHeading}
@@ -871,7 +904,7 @@ export default function AdminDashboard() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-900 mb-2">Hero subtitle</label>
+                      <label className="block text-sm font-semibold text-gray-900 mb-2">Subtitle</label>
                       <textarea
                         value={heroSubtitle}
                         onChange={(e) => setHeroSubtitle(e.target.value)}

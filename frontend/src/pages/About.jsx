@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Award, Heart, Sparkles, Users, Globe, Leaf } from 'lucide-react';
 import axios from '../api/axios';
 
@@ -60,25 +60,43 @@ const DEFAULT_ABOUT_HERO = {
 
 export default function About() {
   const [heroSettings, setHeroSettings] = useState(DEFAULT_ABOUT_HERO);
+  const [statsSettings, setStatsSettings] = useState({
+    image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+    heading: "Our Impact",
+    subtitle: "Trusted by fragrance enthusiasts across the globe.",
+    textColor: "#ffffff",
+  });
+  const [ctaSettings, setCtaSettings] = useState({
+    image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+    heading: "Experience the Art of Perfumery",
+    subtitle: "Discover our collection and find your signature scent",
+    textColor: "#ffffff",
+  });
 
   useEffect(() => {
-    async function fetchHeroSettings() {
+    async function fetchSettings() {
       try {
-        const { data } = await axios.get('/settings/hero?section=about');
-        if (data?.settings) {
-          setHeroSettings({
-            image: data.settings.image || DEFAULT_ABOUT_HERO.image,
-            heading: data.settings.heading || DEFAULT_ABOUT_HERO.heading,
-            subtitle: data.settings.subtitle || DEFAULT_ABOUT_HERO.subtitle,
-            textColor: data.settings.textColor || DEFAULT_ABOUT_HERO.textColor,
-          });
+        const [heroRes, statsRes, ctaRes] = await Promise.all([
+          axios.get('/settings/hero?section=about&subSection=hero'),
+          axios.get('/settings/hero?section=about&subSection=stats'),
+          axios.get('/settings/hero?section=about&subSection=cta')
+        ]);
+
+        if (heroRes.data?.settings) {
+          setHeroSettings(heroRes.data.settings);
+        }
+        if (statsRes.data?.settings) {
+          setStatsSettings(statsRes.data.settings);
+        }
+        if (ctaRes.data?.settings) {
+          setCtaSettings(ctaRes.data.settings);
         }
       } catch (error) {
-        console.error('Failed to load about hero settings:', error);
+        console.error('Failed to load about settings:', error);
       }
     }
 
-    fetchHeroSettings();
+    fetchSettings();
   }, []);
 
   return (
@@ -178,10 +196,17 @@ export default function About() {
       {/* Stats */}
       <section className="py-24 bg-black text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600')] bg-cover bg-center" />
+          <div 
+            className="absolute inset-0 bg-cover bg-center" 
+            style={{ backgroundImage: `url('${statsSettings.image || 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600'}')` }} 
+          />
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-serif mb-4" style={{ color: statsSettings.textColor }}>{statsSettings.heading}</h2>
+            <p className="text-xl text-gray-400" style={{ color: statsSettings.textColor }}>{statsSettings.subtitle}</p>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {[
               { value: '50K+', label: 'Happy Customers', icon: Users },
@@ -311,17 +336,20 @@ export default function About() {
       {/* CTA */}
       <section className="py-32 bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600')] bg-cover bg-center" />
+          <div 
+            className="absolute inset-0 bg-cover bg-center" 
+            style={{ backgroundImage: `url('${ctaSettings.image || 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600'}')` }} 
+          />
         </div>
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
-          <h2 className="text-5xl md:text-6xl font-serif mb-8 leading-tight">
-            Experience the Art
-            <br />
-            of Perfumery
+          <h2 className="text-5xl md:text-6xl font-serif mb-8 leading-tight" style={{ color: ctaSettings.textColor }}>
+            {ctaSettings.heading.split("\n").map((line, index) => (
+              <span key={index} className="block mb-2">{line}</span>
+            ))}
           </h2>
-          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed">
-            Discover our collection and find your signature scent
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed" style={{ color: ctaSettings.textColor }}>
+            {ctaSettings.subtitle}
           </p>
           <a 
             href="/shop"

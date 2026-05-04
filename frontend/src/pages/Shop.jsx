@@ -27,6 +27,12 @@ export default function Shop() {
     subtitle: 'Discover your signature scent from our curated selection',
     textColor: '#ffffff',
   });
+  const [newsletterSettings, setNewsletterSettings] = useState({
+    image: null,
+    heading: "Can't Find What You're Looking For?",
+    subtitle: "Get personalized fragrance recommendations from our experts",
+    textColor: "#ffffff",
+  });
   
   // Categories based on API fragrance types
   const categories = ['All', 'floral', 'aromatic', 'citrus', 'woody', 'aquatic', 'strong', 'light'];
@@ -48,23 +54,25 @@ export default function Shop() {
     fetchProducts();
   }, []);
   useEffect(() => {
-    async function fetchHeroSettings() {
+    async function fetchSettings() {
       try {
-        const { data } = await axios.get('/settings/hero?section=shop');
-        if (data?.settings) {
-          setHeroSettings({
-            image: data.settings.image || null,
-            heading: data.settings.heading || 'Our Collection',
-            subtitle: data.settings.subtitle || 'Discover your signature scent from our curated selection',
-            textColor: data.settings.textColor || '#ffffff',
-          });
+        const [heroRes, newsletterRes] = await Promise.all([
+          axios.get('/settings/hero?section=shop&subSection=hero'),
+          axios.get('/settings/hero?section=shop&subSection=newsletter')
+        ]);
+
+        if (heroRes.data?.settings) {
+          setHeroSettings(heroRes.data.settings);
+        }
+        if (newsletterRes.data?.settings) {
+          setNewsletterSettings(newsletterRes.data.settings);
         }
       } catch (error) {
-        console.error('Failed to load shop hero settings:', error);
+        console.error('Failed to load shop settings:', error);
       }
     }
 
-    fetchHeroSettings();
+    fetchSettings();
   }, []);
   const filteredProducts = !Array.isArray(products) ? [] : (selectedCategory === 'All' 
     ? products 
@@ -259,13 +267,21 @@ export default function Shop() {
       </section>
       
       {/* Newsletter CTA */}
-      <section className="py-20 bg-gradient-to-br from-black via-gray-900 to-black text-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-serif mb-6">
-            Can't Find What You're Looking For?
+      <section className="py-20 bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
+        {newsletterSettings.image && (
+          <div className="absolute inset-0 opacity-20">
+            <div 
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url('${newsletterSettings.image}')` }}
+            />
+          </div>
+        )}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h2 className="text-4xl md:text-5xl font-serif mb-6" style={{ color: newsletterSettings.textColor }}>
+            {newsletterSettings.heading}
           </h2>
-          <p className="text-xl text-gray-300 mb-8">
-            Get personalized fragrance recommendations from our experts
+          <p className="text-xl text-gray-300 mb-8" style={{ color: newsletterSettings.textColor }}>
+            {newsletterSettings.subtitle}
           </p>
           <a 
             href="/contact"

@@ -55,6 +55,18 @@ export default function Home() {
     subtitle: "Experience fragrances that capture the essence of sophistication and leave a lasting impression",
     textColor: "#000000",
   });
+  const [parallaxSettings, setParallaxSettings] = useState({
+    image: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=2000",
+    heading: "The Art of Perfumery",
+    subtitle: "Each fragrance is a masterpiece, meticulously crafted with the world's finest ingredients by master perfumers.",
+    textColor: "#ffffff",
+  });
+  const [newsletterSettings, setNewsletterSettings] = useState({
+    image: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600",
+    heading: "Join Our Exclusive Circle",
+    subtitle: "Be the first to discover new fragrances, exclusive offers, and insider news from the world of Ronel.",
+    textColor: "#ffffff",
+  });
 
   useEffect(() => {
     async function fetchFeaturedProducts() {
@@ -74,23 +86,29 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    async function fetchHeroSettings() {
+    async function fetchSettings() {
       try {
-        const { data } = await axios.get("/settings/hero?section=home");
-        if (data?.settings) {
-          setHeroSettings({
-            image: data.settings.image || null,
-            heading: data.settings.heading || "Timeless Elegance",
-            subtitle: data.settings.subtitle || "Experience fragrances that capture the essence of sophistication and leave a lasting impression",
-            textColor: data.settings.textColor || "#000000",
-          });
+        const [heroRes, parallaxRes, newsletterRes] = await Promise.all([
+          axios.get("/settings/hero?section=home&subSection=hero"),
+          axios.get("/settings/hero?section=home&subSection=parallax"),
+          axios.get("/settings/hero?section=home&subSection=newsletter")
+        ]);
+
+        if (heroRes.data?.settings) {
+          setHeroSettings(heroRes.data.settings);
+        }
+        if (parallaxRes.data?.settings) {
+          setParallaxSettings(parallaxRes.data.settings);
+        }
+        if (newsletterRes.data?.settings) {
+          setNewsletterSettings(newsletterRes.data.settings);
         }
       } catch (error) {
-        console.error("Failed to load hero settings:", error);
+        console.error("Failed to load home settings:", error);
       }
     }
 
-    fetchHeroSettings();
+    fetchSettings();
   }, []);
 
   useEffect(() => {
@@ -254,7 +272,7 @@ export default function Home() {
       <section className="relative h-[700px] bg-black overflow-hidden">
         <div className="absolute inset-0 parallax-container">
           <img 
-            src="https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=2000"
+            src={parallaxSettings.image || "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=2000"}
             alt="Luxury perfume"
             className="w-full h-full object-cover opacity-70 parallax-image"
           />
@@ -264,13 +282,16 @@ export default function Home() {
         <div className="relative z-10 h-full flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div className="max-w-2xl">
-              <h2 className="text-5xl md:text-6xl lg:text-7xl font-serif text-white mb-8 leading-tight">
-                The Art of
-                <br />
-                <span className="italic">Perfumery</span>
+              <h2 className="text-5xl md:text-6xl lg:text-7xl font-serif mb-8 leading-tight" style={{ color: parallaxSettings.textColor }}>
+                {parallaxSettings.heading.split("\n").map((line, index) => (
+                  <span key={index} className={index > 0 ? "italic" : ""}>
+                    {line}
+                    {index === 0 && <br />}
+                  </span>
+                ))}
               </h2>
-              <p className="text-xl md:text-2xl text-gray-200 mb-10 leading-relaxed">
-                Each fragrance is a masterpiece, meticulously crafted with the world's finest ingredients by master perfumers.
+              <p className="text-xl md:text-2xl mb-10 leading-relaxed" style={{ color: parallaxSettings.textColor }}>
+                {parallaxSettings.subtitle}
               </p>
               <Link 
                 to="/about"
@@ -351,15 +372,18 @@ export default function Home() {
       {/* Newsletter CTA */}
       <section className="py-24 bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600')] bg-cover bg-center" />
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url('${newsletterSettings.image || 'https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600'}')` }}
+          />
         </div>
         
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <h2 className="text-4xl md:text-5xl font-serif mb-6">
-            Join Our Exclusive Circle
+          <h2 className="text-4xl md:text-5xl font-serif mb-6" style={{ color: newsletterSettings.textColor }}>
+            {newsletterSettings.heading}
           </h2>
-          <p className="text-xl text-gray-300 mb-10 leading-relaxed">
-            Be the first to discover new fragrances, exclusive offers, and insider news from the world of Ronel.
+          <p className="text-xl text-gray-300 mb-10 leading-relaxed" style={{ color: newsletterSettings.textColor }}>
+            {newsletterSettings.subtitle}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4 max-w-xl mx-auto">
             <input 

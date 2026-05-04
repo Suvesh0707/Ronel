@@ -27,25 +27,33 @@ export default function Contact() {
     subtitle: "We'd love to hear from you. Let's create something beautiful together.",
     textColor: '#ffffff',
   });
+  const [mapSettings, setMapSettings] = useState({
+    image: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1600",
+    heading: "Visit Us",
+    subtitle: "India",
+    textColor: "#000000",
+  });
 
   useEffect(() => {
-    async function fetchHeroSettings() {
+    async function fetchSettings() {
       try {
-        const { data } = await axios.get('/settings/hero?section=contact');
-        if (data?.settings) {
-          setHeroSettings({
-            image: data.settings.image || null,
-            heading: data.settings.heading || 'Get in Touch',
-            subtitle: data.settings.subtitle || "We'd love to hear from you. Let's create something beautiful together.",
-            textColor: data.settings.textColor || '#ffffff',
-          });
+        const [heroRes, mapRes] = await Promise.all([
+          axios.get('/settings/hero?section=contact&subSection=hero'),
+          axios.get('/settings/hero?section=contact&subSection=map')
+        ]);
+
+        if (heroRes.data?.settings) {
+          setHeroSettings(heroRes.data.settings);
+        }
+        if (mapRes.data?.settings) {
+          setMapSettings(mapRes.data.settings);
         }
       } catch (error) {
-        console.error('Failed to load contact hero settings:', error);
+        console.error('Failed to load contact settings:', error);
       }
     }
 
-    fetchHeroSettings();
+    fetchSettings();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -295,15 +303,15 @@ export default function Contact() {
       <section className="h-96 bg-gray-200 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-black/50 to-transparent z-10" />
         <img 
-          src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1600"
+          src={mapSettings.image || "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1600"}
           alt="Location map"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 flex items-center justify-center z-20">
           <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl text-center max-w-md">
             <MapPin className="w-12 h-12 text-black mx-auto mb-4" />
-            <h3 className="text-2xl font-serif font-bold text-black mb-2">Visit Us</h3>
-            <p className="text-gray-600 mb-4">India</p>
+            <h3 className="text-2xl font-serif font-bold text-black mb-2" style={{ color: mapSettings.textColor }}>{mapSettings.heading}</h3>
+            <p className="text-gray-600 mb-4" style={{ color: mapSettings.textColor }}>{mapSettings.subtitle}</p>
             <a 
               href="https://maps.google.com" 
               target="_blank" 
