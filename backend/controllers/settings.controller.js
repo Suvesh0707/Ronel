@@ -100,21 +100,25 @@ const getHeroSettingsForSection = async (section, subSection) => {
   const normalizedSection = normalizeSection(section);
   const normalizedSubSection = normalizeSubSection(subSection);
   const doc = await Settings.findOne({ key: HERO_KEY });
-  const raw = doc?.value || {};
+  const raw = doc?.value ? JSON.parse(JSON.stringify(doc.value)) : {};
   const pageSettings = raw[normalizedSection] || {};
-  
+  const defaults = getHeroDefaults(normalizedSection, normalizedSubSection);
+
   // Handle migration: if pageSettings is old format (flat), move it to 'hero' subsection
   if (pageSettings.image !== undefined && pageSettings.hero === undefined) {
-    // This is old data format
+    const subData = normalizedSubSection === "hero" ? pageSettings : {};
     return {
-      ...getHeroDefaults(normalizedSection, normalizedSubSection),
-      ...(normalizedSubSection === "hero" ? pageSettings : {})
+      ...defaults,
+      ...subData,
+      image: subData.image || defaults.image, // fall back to default when custom image removed
     };
   }
 
+  const subSettings = pageSettings[normalizedSubSection] || {};
   return {
-    ...getHeroDefaults(normalizedSection, normalizedSubSection),
-    ...(pageSettings[normalizedSubSection] || {}),
+    ...defaults,
+    ...subSettings,
+    image: subSettings.image || defaults.image, // fall back to default when custom image removed
   };
 };
 
@@ -189,8 +193,8 @@ export const adminSetHeroSettings = asyncHandler(async (req, res) => {
   const deleteImage = req.body.deleteImage === "true" || req.body.deleteImage === true;
 
   const existingDoc = await Settings.findOne({ key: HERO_KEY });
-  const existing = existingDoc?.value || {};
-  
+  const existing = existingDoc?.value ? JSON.parse(JSON.stringify(existingDoc.value)) : {};
+
   // Handle migration if needed
   let pageSettings = existing[section] || {};
   if (pageSettings.image !== undefined && pageSettings.hero === undefined) {

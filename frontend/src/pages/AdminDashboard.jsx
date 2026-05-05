@@ -5,6 +5,34 @@ import { ArrowLeft, Plus, Edit2, Trash2, Image, ChevronLeft, ChevronRight, Packa
 import axios from "../api/axios";
 import { useToast } from "../utils/ToastProvider";
 
+const DEFAULT_HERO_IMAGES = {
+  home: {
+    hero: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+    parallax: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=2000",
+    newsletter: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600",
+  },
+  shop: {
+    hero: "https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=1600",
+    newsletter: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+  },
+  contact: {
+    hero: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600",
+    map: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1600",
+  },
+  about: {
+    hero: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600",
+    stats: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+    cta: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
+  },
+};
+
+const HERO_SECTIONS = [
+  { value: 'home', label: 'Homepage', subsections: ['hero', 'parallax', 'newsletter'] },
+  { value: 'shop', label: 'Shop', subsections: ['hero', 'newsletter'] },
+  { value: 'contact', label: 'Contact', subsections: ['hero', 'map'] },
+  { value: 'about', label: 'About', subsections: ['hero', 'stats', 'cta'] },
+];
+
 export default function AdminDashboard() {
   const { user: _ } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -45,32 +73,6 @@ export default function AdminDashboard() {
   const [codEnabled, setCodEnabled] = useState(false);
   const [codSettingLoading, setCodSettingLoading] = useState(false);
 
-  const DEFAULT_HERO_IMAGES = {
-    home: {
-      hero: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
-      parallax: "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=2000",
-      newsletter: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600",
-    },
-    shop: {
-      hero: "https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=1600",
-      newsletter: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
-    },
-    contact: {
-      hero: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1600",
-      map: "https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1600",
-    },
-    about: {
-      hero: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1600",
-      stats: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
-      cta: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=1600",
-    },
-  };
-  const heroSections = [
-    { value: 'home', label: 'Homepage', subsections: ['hero', 'parallax', 'newsletter'] },
-    { value: 'shop', label: 'Shop', subsections: ['hero', 'newsletter'] },
-    { value: 'contact', label: 'Contact', subsections: ['hero', 'map'] },
-    { value: 'about', label: 'About', subsections: ['hero', 'stats', 'cta'] },
-  ];
   const [heroSection, setHeroSection] = useState('home');
   const [heroSubSection, setHeroSubSection] = useState('hero');
   const [heroCurrentImage, setHeroCurrentImage] = useState(null);
@@ -143,6 +145,11 @@ export default function AdminDashboard() {
   }, [showToast]);
 
   const fetchHeroSettings = useCallback(async () => {
+    // Clear immediately so switching sections never shows a stale image
+    setHeroCurrentImage(null);
+    setHeroSelectedFile(null);
+    setHeroPreview(null);
+    setHeroDeleteImage(false);
     try {
       const res = await axios.get(`/settings/admin/hero?section=${heroSection}&subSection=${heroSubSection}`);
       const settings = res.data?.settings || {};
@@ -150,9 +157,6 @@ export default function AdminDashboard() {
       setHeroHeading(settings.heading || "");
       setHeroSubtitle(settings.subtitle || "");
       setHeroTextColor(settings.textColor || "#000000");
-      setHeroSelectedFile(null);
-      setHeroPreview(null);
-      setHeroDeleteImage(false);
     } catch {
       showToast("Failed to fetch hero settings");
     }
@@ -249,7 +253,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     // Reset subsection when section changes
-    const section = heroSections.find(s => s.value === heroSection);
+    const section = HERO_SECTIONS.find(s => s.value === heroSection);
     if (section && !section.subsections.includes(heroSubSection)) {
       setHeroSubSection(section.subsections[0]);
     }
@@ -790,7 +794,7 @@ export default function AdminDashboard() {
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Customizable Sections</h3>
                     <p className="text-sm text-gray-600 max-w-2xl">
-                      Update images and text for different sections of the {heroSections.find((section) => section.value === heroSection)?.label || 'homepage'}.
+                      Update images and text for different sections of the {HERO_SECTIONS.find((section) => section.value === heroSection)?.label || 'homepage'}.
                     </p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-4">
@@ -801,7 +805,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setHeroSection(e.target.value)}
                         className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-black"
                       >
-                        {heroSections.map((section) => (
+                        {HERO_SECTIONS.map((section) => (
                           <option key={section.value} value={section.value}>{section.label}</option>
                         ))}
                       </select>
@@ -813,7 +817,7 @@ export default function AdminDashboard() {
                         onChange={(e) => setHeroSubSection(e.target.value)}
                         className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-black capitalize"
                       >
-                        {heroSections.find(s => s.value === heroSection)?.subsections.map((sub) => (
+                        {HERO_SECTIONS.find(s => s.value === heroSection)?.subsections.map((sub) => (
                           <option key={sub} value={sub}>{sub}</option>
                         ))}
                       </select>
@@ -927,12 +931,21 @@ export default function AdminDashboard() {
                   </div>
 
                   <div className="rounded-3xl border border-gray-200 bg-gray-50 p-5">
-                    <p className="text-sm font-semibold text-gray-900 mb-3">Text preview</p>
-                    <div className="rounded-2xl bg-white p-5" style={{ color: heroTextColor }}>
-                      <p className="text-2xl font-serif font-bold">{heroHeading || "Timeless Elegance"}</p>
-                      <p className="mt-3 text-sm text-gray-600" style={{ color: heroTextColor }}>
-                        {heroSubtitle || "Experience fragrances that capture the essence of sophistication and leave a lasting impression"}
-                      </p>
+                    <p className="text-sm font-semibold text-gray-900 mb-3">Preview (image + text)</p>
+                    <div className="relative rounded-2xl overflow-hidden h-48">
+                      <img
+                        src={heroPreview || heroCurrentImage || DEFAULT_HERO_IMAGES[heroSection]?.[heroSubSection] || DEFAULT_HERO_IMAGES.home.hero}
+                        alt="Section preview"
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex flex-col items-start justify-end p-5">
+                        <p className="text-xl font-serif font-bold drop-shadow-md leading-tight" style={{ color: heroTextColor }}>
+                          {heroHeading || "Heading"}
+                        </p>
+                        <p className="text-xs mt-1 drop-shadow-md line-clamp-2 opacity-90" style={{ color: heroTextColor }}>
+                          {heroSubtitle || "Subtitle text appears here"}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
