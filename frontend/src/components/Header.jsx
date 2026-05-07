@@ -1,9 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ShoppingCart, Search, User, Menu, X } from "lucide-react";
+import { ShoppingCart, Search, User, Menu, X, Download } from "lucide-react";
 import { useEffect, useRef, useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import axios from "../api/axios";
+import { usePWAInstall } from "../hooks/usePWAInstall";
 
 export default function Header() {
   const location = useLocation();
@@ -17,6 +18,8 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
+
+  const { isInstallable, install } = usePWAInstall();
 
   const profileRef = useRef(null);
   const searchRef = useRef(null);
@@ -195,6 +198,17 @@ export default function Header() {
                 </span>
               )}
             </button>
+
+            {/* DOWNLOAD APP — mobile only, shown when PWA is installable */}
+            {isInstallable && (
+              <button
+                onClick={install}
+                className="md:hidden flex items-center gap-1.5 px-3 py-1.5 bg-black text-white text-xs font-medium rounded-full hover:bg-gray-800 transition"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download App</span>
+              </button>
+            )}
 
             {/* MOBILE MENU */}
             <button
