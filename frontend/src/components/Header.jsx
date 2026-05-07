@@ -19,7 +19,8 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
 
-  const { isInstallable, install } = usePWAInstall();
+  const { isInstallable, install, isIOS } = usePWAInstall();
+  const [showIOSGuide, setShowIOSGuide] = useState(false);
 
   const profileRef = useRef(null);
   const searchRef = useRef(null);
@@ -202,12 +203,46 @@ export default function Header() {
             {/* DOWNLOAD APP — mobile only, shown when PWA is installable */}
             {isInstallable && (
               <button
-                onClick={install}
+                onClick={isIOS ? () => setShowIOSGuide(true) : install}
                 className="md:hidden flex items-center gap-1.5 px-3 py-1.5 bg-black text-white text-xs font-medium rounded-full hover:bg-gray-800 transition"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download App</span>
               </button>
+            )}
+
+            {/* iOS install instructions overlay */}
+            {showIOSGuide && (
+              <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 px-4 pb-8">
+                <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="font-semibold text-base">Install Ronel App</h3>
+                    <button onClick={() => setShowIOSGuide(false)}>
+                      <X className="w-5 h-5 text-gray-500" />
+                    </button>
+                  </div>
+                  <ol className="text-sm text-gray-700 space-y-3">
+                    <li className="flex gap-2">
+                      <span className="font-bold">1.</span>
+                      <span>Tap the <strong>Share</strong> button at the bottom of Safari (the box with an arrow pointing up)</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="font-bold">2.</span>
+                      <span>Scroll down and tap <strong>Add to Home Screen</strong></span>
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="font-bold">3.</span>
+                      <span>Tap <strong>Add</strong> in the top right corner</span>
+                    </li>
+                  </ol>
+                  <button
+                    onClick={() => setShowIOSGuide(false)}
+                    className="mt-5 w-full py-2.5 bg-black text-white rounded-full text-sm font-medium"
+                  >
+                    Got it
+                  </button>
+                </div>
+              </div>
             )}
 
             {/* MOBILE MENU */}

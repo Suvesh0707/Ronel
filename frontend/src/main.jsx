@@ -3,6 +3,12 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css"; // tailwind
 
+// Capture the install prompt early before React mounts — the event fires fast
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  window.__pwaInstallPrompt = e;
+});
+
 // Suppress console noise from browser extensions (not from this app)
 const origError = console.error;
 console.error = (...args) => {

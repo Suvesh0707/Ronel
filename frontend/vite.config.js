@@ -9,7 +9,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', '4.jpeg'],
+      includeAssets: ['favicon.ico', 'icon-192.png', 'icon-512.png'],
       manifest: {
         name: 'Ronel — Premium Fragrances',
         short_name: 'Ronel',
@@ -21,16 +21,22 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/4.jpeg',
+            src: '/icon-192.png',
             sizes: '192x192',
-            type: 'image/jpeg',
+            type: 'image/png',
             purpose: 'any',
           },
           {
-            src: '/4.jpeg',
+            src: '/icon-512.png',
             sizes: '512x512',
-            type: 'image/jpeg',
-            purpose: 'any maskable',
+            type: 'image/png',
+            purpose: 'any',
+          },
+          {
+            src: '/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable',
           },
         ],
       },

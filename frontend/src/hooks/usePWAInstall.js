@@ -3,17 +3,35 @@ import { useState, useEffect } from "react";
 export function usePWAInstall() {
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isInstallable, setIsInstallable] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    // Don't show if already running as installed PWA
     const isStandalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       window.navigator.standalone === true;
 
     if (isStandalone) return;
 
+    // iOS Safari doesn't fire beforeinstallprompt — detect separately
+    const ios =
+      /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+    if (ios) {
+      setIsIOS(true);
+      setIsInstallable(true);
+      return;
+    }
+
+    // The event may have fired before React mounted — check the early capture
+    if (window.__pwaInstallPrompt) {
+      setInstallPrompt(window.__pwaInstallPrompt);
+      setIsInstallable(true);
+    }
+
     const handler = (e) => {
       e.preventDefault();
+      window.__pwaInstallPrompt = e;
       setInstallPrompt(e);
       setIsInstallable(true);
     };
@@ -21,6 +39,7 @@ export function usePWAInstall() {
     const installedHandler = () => {
       setIsInstallable(false);
       setInstallPrompt(null);
+      window.__pwaInstallPrompt = null;
     };
 
     window.addEventListener("beforeinstallprompt", handler);
@@ -39,8 +58,9 @@ export function usePWAInstall() {
     if (outcome === "accepted") {
       setIsInstallable(false);
       setInstallPrompt(null);
+      window.__pwaInstallPrompt = null;
     }
   };
 
-  return { isInstallable, install };
+  return { isInstallable, install, isIOS };
 }
