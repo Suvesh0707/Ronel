@@ -79,7 +79,7 @@ export default function Header() {
           </Link>
 
           {/* DESKTOP NAV */}
-          <nav className="hidden md:flex gap-8">
+          <nav className="hidden md:flex items-center gap-8">
             {["/", "/shop", "/about", "/contact"].map((path, i) => {
               const labels = ["HOME", "SHOP", "ABOUT", "CONTACT"];
               return (
@@ -96,6 +96,15 @@ export default function Header() {
                 </Link>
               );
             })}
+            {isInstallable && (
+              <button
+                onClick={isIOS ? () => setShowIOSGuide(true) : install}
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-black text-white text-xs font-medium tracking-wider rounded-full hover:bg-gray-800 transition"
+              >
+                <Download className="w-3.5 h-3.5" />
+                DOWNLOAD
+              </button>
+            )}
           </nav>
 
           {/* RIGHT ICONS */}
@@ -200,14 +209,14 @@ export default function Header() {
               )}
             </button>
 
-            {/* DOWNLOAD APP — mobile only, shown when PWA is installable */}
+            {/* DOWNLOAD APP — mobile only (desktop has it in nav) */}
             {isInstallable && (
               <button
                 onClick={isIOS ? () => setShowIOSGuide(true) : install}
                 className="md:hidden flex items-center gap-1.5 px-3 py-1.5 bg-black text-white text-xs font-medium rounded-full hover:bg-gray-800 transition"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Download App</span>
+                <span>Download</span>
               </button>
             )}
 
