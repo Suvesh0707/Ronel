@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>✨ Ronel Activity Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ronel-purple: #8b5cf6;
+    --ronel-dark: #1e1b4b;
+    --ronel-gold: #f59e0b;
+    --ronel-pink: #ec4899;
+    --ronel-blue: #3b82f6;
+    --ronel-green: #10b981;
+    --ronel-red: #ef4444;
+  }
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    min-height: 100vh;
+    padding: 24px;
+    color: #e2e8f0;
+  }
+  .container { max-width: 1400px; margin: 0 auto; }
+  
+  header {
+    background: linear-gradient(135deg, var(--ronel-purple) 0%, var(--ronel-pink) 100%);
+    color: white;
+    padding: 36px;
+    border-radius: 28px;
+    margin-bottom: 28px;
+    box-shadow: 0 25px 80px rgba(139,92,246,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-content { position: relative; z-index: 1; }
+  h1 { 
+    font-family: 'Playfair Display', serif;
+    font-size: 44px; 
+    margin-bottom: 8px;
+    letter-spacing: -1px;
+  }
+  .subtitle { font-size: 17px; opacity: 0.95; }
+  .header-actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+  
+  .btn {
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary { 
+    background: white; 
+    color: var(--ronel-purple); 
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  }
+  .btn-primary:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 12px 35px rgba(0,0,0,0.3);
+  }
+  .btn-secondary { 
+    background: rgba(255,255,255,0.18); 
+    color: white; 
+    border: 2px solid rgba(255,255,255,0.4); 
+    backdrop-filter: blur(10px);
+  }
+  .btn-secondary:hover { 
+    background: rgba(255,255,255,0.28); 
+    transform: translateY(-2px);
+  }
+  
+  .grid-top { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 24px; }
+  .grid-charts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .grid-main { display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px; }
+  
+  .card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 28px;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .card h3 { 
+    font-size: 13px; 
+    color: #94a3b8; 
+    text-transform: uppercase; 
+    letter-spacing: 2px; 
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+  
+  .stat-card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 24px 20px;
+    border-radius: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 5px;
+  }
+  .stat-card.green::before { background: linear-gradient(90deg, var(--ronel-green), #059669); }
+  .stat-card.yellow::before { background: linear-gradient(90deg, var(--ronel-gold), #d97706); }
+  .stat-card.red::before { background: linear-gradient(90deg, var(--ronel-red), #dc2626); }
+  .stat-card.purple::before { background: linear-gradient(90deg, var(--ronel-purple), #7c3aed); }
+  .stat-card.blue::before { background: linear-gradient(90deg, var(--ronel-blue), #2563eb); }
+  .stat-card.pink::before { background: linear-gradient(90deg, var(--ronel-pink), #db2777); }
+  
+  .stat-icon {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  .stat-num { 
+    font-size: 40px; 
+    font-weight: 800; 
+    line-height: 1;
+  }
+  .stat-label { 
+    font-size: 12px; 
+    color: #94a3b8; 
+    margin-top: 10px; 
+    text-transform: uppercase; 
+    letter-spacing: 1.5px;
+    font-weight: 600;
+  }
+  .stat-card.green .stat-num { color: var(--ronel-green); }
+  .stat-card.yellow .stat-num { color: var(--ronel-gold); }
+  .stat-card.red .stat-num { color: var(--ronel-red); }
+  .stat-card.purple .stat-num { color: var(--ronel-purple); }
+  .stat-card.blue .stat-num { color: var(--ronel-blue); }
+  .stat-card.pink .stat-num { color: var(--ronel-pink); }
+  
+  .chart-container { height: 240px; }
+  
+  .filters {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 24px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .filter-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .filter-row:last-child { margin-bottom: 0; }
+  .filters input, .filters select {
+    padding: 14px 18px;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    background: rgba(255,255,255,0.05);
+    color: white;
+    transition: all 0.3s;
+  }
+  .filters select {
+    background-color: #ffffff;
+    color: #1e293b;
+    border: 2px solid #e2e8f0;
+  }
+  .filters select option {
+    background-color: #ffffff;
+    color: #1e293b;
+    padding: 10px;
+  }
+  .filters input:focus, .filters select:focus { 
+    outline: none; 
+    border-color: var(--ronel-purple);
+    background: rgba(255,255,255,0.1);
+  }
+  .filters input::placeholder { color: #94a3b8; }
+  .filters input[type="text"] { flex: 1; min-width: 200px; }
+  .filters button {
+    background: linear-gradient(135deg, var(--ronel-purple) 0%, var(--ronel-pink) 100%);
+    color: white;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.3s;
+    box-shadow: 0 8px 25px rgba(139,92,246,0.3);
+  }
+  .filters button:hover { 
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(139,92,246,0.4);
+  }
+  .filters .btn-outline {
+    background: transparent;
+    border: 2px solid var(--ronel-purple);
+    color: var(--ronel-purple);
+    box-shadow: none;
+  }
+  
+  .preset-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .preset-btn {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.05);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    color: #cbd5e1;
+    transition: all 0.3s;
+  }
+  .preset-btn:hover { 
+    border-color: var(--ronel-purple); 
+    color: white;
+    background: rgba(139,92,246,0.15);
+  }
+  .preset-btn.active { 
+    background: linear-gradient(135deg, var(--ronel-purple) 0%, var(--ronel-pink) 100%);
+    color: white;
+    border-color: transparent;
+  }
+  
+  .activity-list { display: flex; flex-direction: column; gap: 14px; }
+  
+  .activity-item {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 22px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .activity-item:hover { 
+    transform: translateY(-3px); 
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    border-color: rgba(139,92,246,0.4);
+  }
+  .activity-item.expanded { 
+    border-color: var(--ronel-purple);
+  }
+  .activity-item.guest {
+    border-left: 4px solid var(--ronel-gold);
+    background: linear-gradient(90deg, rgba(245,158,11,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  }
+  .activity-item.error {
+    border-left: 4px solid var(--ronel-red);
+    background: linear-gradient(90deg, rgba(239,68,68,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  }
+  .activity-item.warning {
+    border-left: 4px solid var(--ronel-gold);
+    background: linear-gradient(90deg, rgba(245,158,11,0.08) 0%, rgba(255,255,255,0.05) 100%);
+  }
+  
+  .activity-header { display: flex; align-items: center; gap: 18px; }
+  
+  .icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    flex-shrink: 0;
+  }
+  .icon-success { background: linear-gradient(135deg, rgba(16,185,129,0.3), rgba(16,185,129,0.1)); }
+  .icon-error { background: linear-gradient(135deg, rgba(239,68,68,0.3), rgba(239,68,68,0.1)); }
+  .icon-warning { background: linear-gradient(135deg, rgba(245,158,11,0.3), rgba(245,158,11,0.1)); }
+  .icon-info { background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(139,92,246,0.1)); }
+  .icon-guest { background: linear-gradient(135deg, rgba(245,158,11,0.3), rgba(245,158,11,0.1)); }
+  
+  .activity-main { flex: 1; }
+  .activity-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 6px;
+  }
+  .activity-meta {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    font-size: 13px; color: #94a3b8;
+  }
+  .meta-item { display: flex; align-items: center; gap: 6px; }
+  
+  .user-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(139,92,246,0.2);
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    color: white;
+    font-weight: 500;
+    border: 1px solid rgba(139,92,246,0.3);
+  }
+  .user-badge.guest {
+    background: rgba(245,158,11,0.2);
+    border-color: rgba(245,158,11,0.3);
+  }
+  
+  .activity-details {
+    display: none;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px dashed rgba(255,255,255,0.15);
+  }
+  .activity-item.expanded .activity-details { display: block; }
+  
+  .detail-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  }
+  .detail-item {
+    background: rgba(255,255,255,0.05);
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .detail-label { 
+    font-size: 11px; 
+    color: #94a3b8; 
+    text-transform: uppercase; 
+    letter-spacing: 1.5px; 
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .detail-value { 
+    font-size: 14px; 
+    color: white; 
+    font-weight: 500; 
+    word-break: break-all;
+  }
+  
+  .user-list { display: flex; flex-direction: column; gap: 12px; }
+  .user-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 18px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s;
+  }
+  .user-item:hover {
+    background: rgba(139,92,246,0.15);
+    border-color: rgba(139,92,246,0.3);
+  }
+  .user-info { display: flex; align-items: center; gap: 12px; }
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--ronel-purple), var(--ronel-pink));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .user-email { font-size: 14px; font-weight: 500; color: white; }
+  .user-count { 
+    font-size: 13px; 
+    color: #94a3b8;
+    background: rgba(255,255,255,0.1);
+    padding: 6px 12px;
+    border-radius: 10px;
+  }
+  
+  .empty {
+    text-align: center;
+    padding: 80px 40px;
+    color: #94a3b8;
+    font-size: 18px;
+  }
+  
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    color: #64748b;
+    font-size: 14px;
+  }
+  
+  .toggle-live {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .toggle-live:hover {
+    background: rgba(255,255,255,0.18);
+  }
+  .toggle-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--ronel-green);
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 20px rgba(16,185,129,0.5);
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.1); } }
+  .toggle-live.paused .toggle-dot { 
+    background: #64748b; 
+    animation: none;
+    box-shadow: none;
+  }
+  
+  @media (max-width: 1200px) {
+    .grid-top { grid-template-columns: repeat(3, 1fr); }
+    .grid-charts { grid-template-columns: 1fr 1fr; }
+    .grid-main { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 768px) {
+    .grid-top { grid-template-columns: repeat(2, 1fr); }
+    .grid-charts { grid-template-columns: 1fr; }
+    .detail-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="header-content">
+      <h1>✨ Ronel Activity Dashboard</h1>
+      <div class="subtitle">Elegant monitoring for your application</div>
+      <div class="header-actions">
+        <div class="toggle-live" id="toggle-live" onclick="toggleLive()">
+          <div class="toggle-dot"></div>
+          <span id="live-text">Live Updates ON</span>
+        </div>
+        <button class="btn btn-primary" onclick="exportCSV()">📥 Export CSV</button>
+        <button class="btn btn-primary" onclick="exportJSON()">📥 Export JSON</button>
+        <button class="btn btn-secondary" onclick="loadActivities()">🔄 Refresh</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="grid-top">
+    <div class="stat-card green">
+      <div class="stat-icon">✅</div>
+      <div class="stat-num" id="stat-ok">—</div>
+      <div class="stat-label">Successful</div>
+    </div>
+    <div class="stat-card yellow">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-num" id="stat-warn">—</div>
+      <div class="stat-label">Warnings</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-icon">❌</div>
+      <div class="stat-num" id="stat-err">—</div>
+      <div class="stat-label">Errors</div>
+    </div>
+    <div class="stat-card purple">
+      <div class="stat-icon">👤</div>
+      <div class="stat-num" id="stat-users">—</div>
+      <div class="stat-label">Unique Users</div>
+    </div>
+    <div class="stat-card pink">
+      <div class="stat-icon">👥</div>
+      <div class="stat-num" id="stat-guests">—</div>
+      <div class="stat-label">Guest Activities</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-icon">📊</div>
+      <div class="stat-num" id="stat-total">—</div>
+      <div class="stat-label">Total Events</div>
+    </div>
+  </div>
+
+  <div class="grid-charts">
+    <div class="card">
+      <h3>📈 Activity Trend</h3>
+      <div class="chart-container">
+        <canvas id="activityChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <h3>🥧 Level Distribution</h3>
+      <div class="chart-container">
+        <canvas id="pieChart"></canvas>
+      </div>
+    </div>
+    <div class="card">
+      <h3>📊 Method Breakdown</h3>
+      <div class="chart-container">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-row">
+      <div class="preset-btns">
+        <button class="preset-btn" onclick="applyPreset('all')">All</button>
+        <button class="preset-btn" onclick="applyPreset('last1h')">Last 1 Hour</button>
+        <button class="preset-btn" onclick="applyPreset('today')">Today</button>
+        <button class="preset-btn" onclick="applyPreset('errors')">Errors Only</button>
+        <button class="preset-btn" onclick="applyPreset('warnings')">Warnings Only</button>
+        <button class="preset-btn" onclick="applyPreset('guests')">Guests Only</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+          <input type="checkbox" id="hide-logs-view" checked onchange="toggleHideLogsView()" style="width: 18px; height: 18px; cursor: pointer;">
+          <span style="font-size: 14px; color: #cbd5e1;">Hide dashboard, root, Vite & favicon views</span>
+        </label>
+      </div>
+    </div>
+    <div class="filter-row">
+      <input type="text" id="search-all" placeholder="🔍 Search anything (email, route, message)...">
+      <input type="date" id="start-date">
+      <span>to</span>
+      <input type="date" id="end-date">
+      <select id="filter-level">
+        <option value="">All Levels</option>
+        <option value="info">Info</option>
+        <option value="warn">Warning</option>
+        <option value="error">Error</option>
+      </select>
+      <select id="filter-method">
+        <option value="">All Methods</option>
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="PUT">PUT</option>
+        <option value="PATCH">PATCH</option>
+        <option value="DELETE">DELETE</option>
+      </select>
+      <select id="filter-limit">
+        <option value="50">50 entries</option>
+        <option value="100">100 entries</option>
+        <option value="200" selected>200 entries</option>
+        <option value="500">500 entries</option>
+        <option value="1000">1000 entries</option>
+      </select>
+      <button onclick="loadActivities()">🔍 Search</button>
+      <button class="btn-outline" onclick="clearFilters()">🗑️ Clear</button>
+    </div>
+  </div>
+
+  <div class="grid-main">
+    <div class="card" style="padding: 0; background: transparent; border: none; box-shadow: none;">
+      <h3 style="padding: 0 0 20px 0; margin: 0;">📋 Activity Feed</h3>
+      <div class="activity-list" id="activity-list"></div>
+      <div class="empty" id="empty-state" style="display:none">No activities found! 🎉</div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom: 24px;">
+        <h3>🏆 Top Active Users</h3>
+        <div class="user-list" id="user-summary"></div>
+      </div>
+      <div class="card">
+        <h3>📍 Most Used Routes</h3>
+        <div class="user-list" id="route-summary"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">✨ Made with love for Ronel</div>
+</div>
+
+<script>
+const TOKEN = new URLSearchParams(location.search).get('token') || '';
+let autoRefresh;
+let liveUpdates = true;
+let currentEntries = [];
+let activityChart = null;
+let pieChart = null;
+let barChart = null;
+let hideLogsView = true;
+
+function getIconAndColor(level, isGuest) {
+  if (isGuest) return { emoji: '👤', class: 'icon-guest' };
+  if (level === 'error') return { emoji: '❌', class: 'icon-error' };
+  if (level === 'warn') return { emoji: '⚠️', class: 'icon-warning' };
+  if (level === 'info') return { emoji: '✅', class: 'icon-success' };
+  return { emoji: 'ℹ️', class: 'icon-info' };
+}
+
+function formatTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-IN') + ' at ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+function getSimpleDescription(entry) {
+  const method = entry.method || '';
+  const route = entry.route || entry.originalUrl || '';
+  
+  if (entry.level === 'error' && entry.message) {
+    return '❌ ' + entry.message;
+  }
+  
+  if (route.includes('/users/register')) return '👤 Someone tried to register';
+  if (route.includes('/users/login')) return '🔐 Someone logged in';
+  if (route.includes('/cart')) return '🛒 Someone viewed or updated their cart';
+  if (route.includes('/orders')) return '📦 Someone viewed or placed an order';
+  if (route.includes('/perfumes')) return '🌸 Someone viewed perfumes';
+  if (route.includes('/health')) return '💚 System health check';
+  if (route.includes('/metrics')) return '📊 System metrics checked';
+  if (route.includes('/entries') || route.includes('/logs')) return '👀 Someone viewed the logs';
+  
+  if (method === 'GET') return '👁️ Someone viewed a page';
+  if (method === 'POST') return '📝 Someone submitted something';
+  if (method === 'PUT') return '✏️ Someone updated something';
+  if (method === 'DELETE') return '🗑️ Someone deleted something';
+  
+  return '📋 System activity';
+}
+
+function toggleLive() {
+  liveUpdates = !liveUpdates;
+  const toggle = document.getElementById('toggle-live');
+  const text = document.getElementById('live-text');
+  
+  if (liveUpdates) {
+    toggle.classList.remove('paused');
+    text.textContent = 'Live Updates ON';
+    startAutoRefresh();
+  } else {
+    toggle.classList.add('paused');
+    text.textContent = 'Live Updates PAUSED';
+    stopAutoRefresh();
+  }
+}
+
+function startAutoRefresh() {
+  stopAutoRefresh();
+  autoRefresh = setInterval(loadActivities, 8000);
+}
+
+function stopAutoRefresh() {
+  if (autoRefresh) {
+    clearInterval(autoRefresh);
+    autoRefresh = null;
+  }
+}
+
+function applyPreset(preset) {
+  document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  
+  document.getElementById('start-date').value = '';
+  document.getElementById('end-date').value = '';
+  document.getElementById('filter-level').value = '';
+  
+  if (preset === 'last1h') {
+    const oneHourAgo = new Date(now - 60 * 60 * 1000);
+    document.getElementById('start-date').value = oneHourAgo.toISOString().split('T')[0];
+  } else if (preset === 'today') {
+    document.getElementById('start-date').value = today.toISOString().split('T')[0];
+    document.getElementById('end-date').value = today.toISOString().split('T')[0];
+  } else if (preset === 'errors') {
+    document.getElementById('filter-level').value = 'error';
+  } else if (preset === 'warnings') {
+    document.getElementById('filter-level').value = 'warn';
+  } else if (preset === 'guests') {
+  }
+  
+  loadActivities();
+}
+
+function toggleHideLogsView() {
+  hideLogsView = document.getElementById('hide-logs-view').checked;
+  loadActivities();
+}
+
+function clearFilters() {
+  document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById('search-all').value = '';
+  document.getElementById('start-date').value = '';
+  document.getElementById('end-date').value = '';
+  document.getElementById('filter-level').value = '';
+  document.getElementById('filter-method').value = '';
+  document.getElementById('filter-limit').value = '200';
+  loadActivities();
+}
+
+function isLogsViewEntry(entry) {
+  const route = entry.route || entry.originalUrl || '';
+  return route.includes('/entries') || route.includes('/logs') || route === '/' || route === '' || route.includes('@vite') || route.includes('favicon');
+}
+
+async function loadActivities() {
+  const search = document.getElementById('search-all').value.toLowerCase();
+  const level = document.getElementById('filter-level').value;
+  const method = document.getElementById('filter-method').value;
+  const limit = document.getElementById('filter-limit').value;
+  const startDate = document.getElementById('start-date').value;
+  const endDate = document.getElementById('end-date').value;
+  const activePreset = document.querySelector('.preset-btn.active')?.textContent?.trim();
+  
+  const params = new URLSearchParams({ token: TOKEN, limit: 1000 });
+  if (level) params.set('level', level);
+  if (startDate) params.set('startDate', startDate);
+  if (endDate) params.set('endDate', endDate);
+  
+  try {
+    const r = await fetch('/api/logs/entries?' + params.toString());
+    if (!r.ok) return;
+    const data = await r.json();
+    
+    let entries = data.entries;
+    
+    if (hideLogsView) {
+      entries = entries.filter(e => !isLogsViewEntry(e));
+    }
+    
+    if (activePreset === 'Guests Only') {
+      entries = entries.filter(e => !e.email);
+    }
+    
+    if (method) {
+      entries = entries.filter(e => e.method === method);
+    }
+    
+    if (search) {
+      entries = entries.filter(e => {
+        const searchStr = JSON.stringify(e).toLowerCase();
+        return searchStr.includes(search);
+      });
+    }
+    
+    entries = entries.slice(0, Number(limit));
+    currentEntries = entries;
+    
+    renderActivities(entries);
+    renderCharts(entries);
+    renderUserSummary(entries);
+    renderRouteSummary(entries);
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+function renderActivities(entries) {
+  const list = document.getElementById('activity-list');
+  const empty = document.getElementById('empty-state');
+  
+  let oks = 0, warns = 0, errs = 0, guests = 0;
+  const users = new Set();
+  
+  if (!entries.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  
+  empty.style.display = 'none';
+  
+  list.innerHTML = entries.map((entry, index) => {
+    if (entry.level === 'error') errs++;
+    else if (entry.level === 'warn') warns++;
+    else oks++;
+    if (entry.userId) users.add(entry.userId);
+    if (!entry.email) guests++;
+    
+    const isGuest = !entry.email;
+    const icon = getIconAndColor(entry.level, isGuest);
+    const desc = getSimpleDescription(entry);
+    const userText = entry.email ? entry.email : '👤 Guest';
+    
+    let itemClass = 'activity-item';
+    if (isGuest) itemClass += ' guest';
+    if (entry.level === 'error') itemClass += ' error';
+    if (entry.level === 'warn') itemClass += ' warning';
+    
+    return '<div class="' + itemClass + '" onclick="toggleExpand(' + index + ')" id="activity-' + index + '">' +
+      '<div class="activity-header">' +
+        '<div class="icon ' + icon.class + '">' + icon.emoji + '</div>' +
+        '<div class="activity-main">' +
+          '<div class="activity-title">' + desc + '</div>' +
+          '<div class="activity-meta">' +
+            (entry.method ? '<span class="meta-item">📌 ' + entry.method + '</span>' : '') +
+            (entry.route ? '<span class="meta-item">📍 ' + entry.route + '</span>' : '') +
+            (entry.statusCode ? '<span class="meta-item">🏷️ ' + entry.statusCode + '</span>' : '') +
+            (entry.duration ? '<span class="meta-item">⏱️ ' + entry.duration + '</span>' : '') +
+            '<span class="meta-item">🕐 ' + formatTime(entry.timestamp) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="user-badge ' + (isGuest ? 'guest' : '') + '">' + 
+          (isGuest ? '👥 ' : '👤 ') + userText + 
+        '</div>' +
+      '</div>' +
+      '<div class="activity-details">' +
+        '<div class="detail-grid">' +
+          '<div class="detail-item">' +
+            '<div class="detail-label">Level</div>' +
+            '<div class="detail-value">' + (entry.level?.toUpperCase() || '—') + '</div>' +
+          '</div>' +
+          '<div class="detail-item">' +
+            '<div class="detail-label">Status Code</div>' +
+            '<div class="detail-value">' + (entry.statusCode || '—') + '</div>' +
+          '</div>' +
+          '<div class="detail-item">' +
+            '<div class="detail-label">Duration</div>' +
+            '<div class="detail-value">' + (entry.duration || '—') + '</div>' +
+          '</div>' +
+          '<div class="detail-item">' +
+            '<div class="detail-label">User ID</div>' +
+            '<div class="detail-value">' + (entry.userId || '—') + '</div>' +
+          '</div>' +
+          '<div class="detail-item">' +
+            '<div class="detail-label">IP Address</div>' +
+            '<div class="detail-value">' + (entry.ip || '—') + '</div>' +
+          '</div>' +
+          '<div class="detail-item">' +
+            '<div class="detail-label">User Type</div>' +
+            '<div class="detail-value">' + (isGuest ? '👥 Guest' : '👤 Registered') + '</div>' +
+          '</div>' +
+          (entry.message ? '<div class="detail-item" style="grid-column: 1 / -1;">' +
+            '<div class="detail-label">Message</div>' +
+            '<div class="detail-value">' + entry.message + '</div>' +
+          '</div>' : '') +
+          (entry.stack ? '<div class="detail-item" style="grid-column: 1 / -1;">' +
+            '<div class="detail-label">Stack Trace</div>' +
+            '<div class="detail-value" style="font-size: 12px; font-family: monospace;">' + entry.stack.replace(/</g, '&lt;') + '</div>' +
+          '</div>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  
+  document.getElementById('stat-ok').textContent = oks;
+  document.getElementById('stat-warn').textContent = warns;
+  document.getElementById('stat-err').textContent = errs;
+  document.getElementById('stat-users').textContent = users.size;
+  document.getElementById('stat-guests').textContent = guests;
+  document.getElementById('stat-total').textContent = entries.length;
+}
+
+function toggleExpand(index) {
+  const item = document.getElementById('activity-' + index);
+  item.classList.toggle('expanded');
+}
+
+function renderCharts(entries) {
+  renderActivityChart(entries);
+  renderPieChart(entries);
+  renderBarChart(entries);
+}
+
+function renderActivityChart(entries) {
+  const ctx = document.getElementById('activityChart').getContext('2d');
+  
+  const last20 = entries.slice(0, 20).reverse();
+  const labels = last20.map(e => {
+    const d = new Date(e.timestamp);
+    return d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  });
+  
+  const infoData = last20.map(e => e.level === 'info' ? 1 : 0);
+  const warnData = last20.map(e => e.level === 'warn' ? 1 : 0);
+  const errData = last20.map(e => e.level === 'error' ? 1 : 0);
+  
+  if (activityChart) activityChart.destroy();
+  
+  activityChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Success', data: infoData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)', fill: true, tension: 0.4 },
+        { label: 'Warnings', data: warnData, borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', fill: true, tension: 0.4 },
+        { label: 'Errors', data: errData, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true, tension: 0.4 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1' } } },
+      scales: { 
+        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.08)' } }
+      }
+    }
+  });
+}
+
+function renderPieChart(entries) {
+  const ctx = document.getElementById('pieChart').getContext('2d');
+  
+  let info = 0, warn = 0, error = 0;
+  entries.forEach(e => {
+    if (e.level === 'error') error++;
+    else if (e.level === 'warn') warn++;
+    else info++;
+  });
+  
+  if (pieChart) pieChart.destroy();
+  
+  pieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Success', 'Warnings', 'Errors'],
+      datasets: [{
+        data: [info, warn, error],
+        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1' } } }
+    }
+  });
+}
+
+function renderBarChart(entries) {
+  const ctx = document.getElementById('barChart').getContext('2d');
+  
+  const methods = {};
+  entries.forEach(e => {
+    if (e.method) {
+      methods[e.method] = (methods[e.method] || 0) + 1;
+    }
+  });
+  
+  if (barChart) barChart.destroy();
+  
+  barChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(methods),
+      datasets: [{
+        label: 'Requests',
+        data: Object.values(methods),
+        backgroundColor: [
+          'rgba(139,92,246,0.7)',
+          'rgba(236,72,153,0.7)',
+          'rgba(59,130,246,0.7)',
+          'rgba(245,158,11,0.7)',
+          'rgba(16,185,129,0.7)'
+        ],
+        borderWidth: 0,
+        borderRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { 
+        y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+        x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderUserSummary(entries) {
+  const userCounts = {};
+  entries.forEach(e => {
+    const user = e.email || '👤 Guest';
+    userCounts[user] = (userCounts[user] || 0) + 1;
+  });
+  
+  const sortedUsers = Object.entries(userCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+  
+  const container = document.getElementById('user-summary');
+  container.innerHTML = sortedUsers.map(([email, count]) => {
+    const initials = email === '👤 Guest' ? 'G' : email.charAt(0).toUpperCase();
+    return '<div class="user-item">' +
+      '<div class="user-info">' +
+        '<div class="user-avatar">' + initials + '</div>' +
+        '<span class="user-email">' + email + '</span>' +
+      '</div>' +
+      '<span class="user-count">' + count + ' activities</span>' +
+    '</div>';
+  }).join('');
+  
+  if (sortedUsers.length === 0) {
+    container.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 30px;">No user data yet</div>';
+  }
+}
+
+function renderRouteSummary(entries) {
+  const routeCounts = {};
+  entries.forEach(e => {
+    const route = e.route || e.originalUrl;
+    if (route) {
+      routeCounts[route] = (routeCounts[route] || 0) + 1;
+    }
+  });
+  
+  const sortedRoutes = Object.entries(routeCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+  
+  const container = document.getElementById('route-summary');
+  container.innerHTML = sortedRoutes.map(([route, count]) => 
+    '<div class="user-item">' +
+      '<div class="user-info">' +
+        '<div class="user-avatar">📍</div>' +
+        '<span class="user-email" style="font-size: 13px;">' + (route.length > 30 ? route.substring(0, 30) + '...' : route) + '</span>' +
+      '</div>' +
+      '<span class="user-count">' + count + ' hits</span>' +
+    '</div>'
+  ).join('');
+  
+  if (sortedRoutes.length === 0) {
+    container.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 30px;">No route data yet</div>';
+  }
+}
+
+function exportCSV() {
+  if (!currentEntries.length) return alert('No data to export!');
+  
+  const headers = ['Timestamp', 'Level', 'Method', 'Route', 'Status', 'Email', 'User ID', 'IP', 'Message', 'Is Guest'];
+  const csv = [headers.join(',')].concat(
+    currentEntries.map(e => [
+      e.timestamp,
+      e.level,
+      e.method || '',
+      e.route || '',
+      e.statusCode || '',
+      e.email || '',
+      e.userId || '',
+      e.ip || '',
+      (e.message || '').replace(/"/g, '""'),
+      !e.email ? 'Yes' : 'No'
+    ].map(v => '"' + (v || '') + '"').join(','))
+  ).join('\n');
+  
+  downloadFile(csv, 'ronel-activity-logs.csv', 'text/csv');
+}
+
+function exportJSON() {
+  if (!currentEntries.length) return alert('No data to export!');
+  const json = JSON.stringify(currentEntries, null, 2);
+  downloadFile(json, 'ronel-activity-logs.json', 'application/json');
+}
+
+function downloadFile(content, filename, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+loadActivities();
+startAutoRefresh();
+</script>
+</body>
+</html>

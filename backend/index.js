@@ -7,6 +7,11 @@ import cors from "cors";
 import connectDB from "./db/index.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import cloudinary from "./utils/cloudinary.js";
+import metricsMiddleware from "./middleware/metricsMiddleware.js";
+import registry from "./utils/metrics.js";
+import requestLogger from "./middleware/requestLogger.js";
+import logger from "./utils/logger.js";
+import logsRoutes from "./routes/logs.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,6 +19,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 3000;
+
+app.use(express.static(path.join(__dirname, "public")));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -26,6 +33,23 @@ app.use(
     credentials: true,
   })
 );
+
+// ── Prometheus metrics middleware ── tracks ALL API routes ──────────────────
+app.use(metricsMiddleware);
+
+// ── Winston request logger ── logs every request with user context ───────────
+app.use(requestLogger);
+
+// Prometheus scrape endpoint – exposes metrics for Prometheus server
+// NOTE: restrict access (IP whitelist / token) in production if needed
+app.get("/metrics", async (req, res) => {
+  try {
+    res.set("Content-Type", registry.contentType);
+    res.end(await registry.metrics());
+  } catch (err) {
+    res.status(500).end(err.message);
+  }
+});
 
 app.get("/test-cloudinary", async (req, res) => {
   try {
@@ -79,6 +103,10 @@ if (!razorpayConfigured) {
   app.use("/api/delivery", deliveryRoutes);
   app.use("/api/reviews", reviewRoutes);
 
+  // Log viewer — JSON API + HTML dashboard (token-protected)
+  app.use("/api/logs", logsRoutes);
+  app.use("/admin/logs", logsRoutes);
+
   app.get("/api/health", (req, res) => {
     res.json({
       ok: true,
@@ -90,6 +118,7 @@ if (!razorpayConfigured) {
 
   await connectDB();
   app.listen(PORT, () => {
+    logger.info(`Server started`, { port: PORT, env: process.env.NODE_ENV || "development" });
     console.log(`server is running on port : ${PORT}`);
   });
 })();

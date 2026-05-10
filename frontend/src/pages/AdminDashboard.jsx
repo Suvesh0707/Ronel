@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { ArrowLeft, Plus, Edit2, Trash2, Image, ChevronLeft, ChevronRight, Package, Truck, UserPlus, Check, RefreshCw, Settings } from "lucide-react";
+import { ArrowLeft, Plus, Edit2, Trash2, Image, ChevronLeft, ChevronRight, Package, Truck, UserPlus, Check, RefreshCw, Settings, Activity } from "lucide-react";
 import axios from "../api/axios";
 import { useToast } from "../utils/ToastProvider";
 
@@ -632,6 +632,17 @@ export default function AdminDashboard() {
             <Settings size={18} />
             SETTINGS
           </button>
+          <button
+            onClick={() => setActiveTab("logs")}
+            className={`px-6 py-3 tracking-wider text-sm font-medium border-b-2 transition flex items-center gap-2 ${
+              activeTab === "logs"
+                ? "border-black text-black"
+                : "border-transparent text-gray-600 hover:text-black"
+            }`}
+          >
+            <Activity size={18} />
+            LOGS & METRICS
+          </button>
         </div>
 
         {/* Content */}
@@ -1049,6 +1060,33 @@ export default function AdminDashboard() {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "logs" && (
+          <div className="space-y-6">
+            <div className="flex flex-wrap items-center gap-4 p-4 bg-gray-50 rounded-xl">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-gray-900">Activity Dashboard</h3>
+                <p className="text-sm text-gray-600">Real-time logs, metrics, and user activity monitoring</p>
+              </div>
+              <a
+                href="http://localhost:5000/dashboard.html?token=ronellogs123"
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition flex items-center gap-2"
+              >
+                Open in New Tab
+              </a>
+            </div>
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <iframe
+                src="http://localhost:5000/dashboard.html?token=ronellogs123"
+                title="Ronel Activity Dashboard"
+                className="w-full"
+                style={{ height: "800px", border: "none" }}
+              />
             </div>
           </div>
         )}
