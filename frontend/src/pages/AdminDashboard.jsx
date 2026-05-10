@@ -2,7 +2,7 @@ import { useContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { ArrowLeft, Plus, Edit2, Trash2, Image, ChevronLeft, ChevronRight, Package, Truck, UserPlus, Check, RefreshCw, Settings, Activity } from "lucide-react";
-import axios from "../api/axios";
+import axios, { baseURL } from "../api/axios";
 import { useToast } from "../utils/ToastProvider";
 
 const DEFAULT_HERO_IMAGES = {
@@ -1072,7 +1072,7 @@ export default function AdminDashboard() {
                 <p className="text-sm text-gray-600">Real-time logs, metrics, and user activity monitoring</p>
               </div>
               <a
-                href="http://localhost:5000/dashboard.html?token=ronellogs123"
+                href={`${baseURL.replace('/api', '')}/dashboard.html?token=ronellogs123`}
                 target="_blank"
                 rel="noreferrer"
                 className="px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition flex items-center gap-2"
@@ -1082,7 +1082,7 @@ export default function AdminDashboard() {
             </div>
             <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
               <iframe
-                src="http://localhost:5000/dashboard.html?token=ronellogs123"
+                src={`${baseURL.replace('/api', '')}/dashboard.html?token=ronellogs123`}
                 title="Ronel Activity Dashboard"
                 className="w-full"
                 style={{ height: "800px", border: "none" }}
